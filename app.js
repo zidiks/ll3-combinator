@@ -21,7 +21,7 @@
     modFilter: { type: '', rarity: '', q: '' },
     lib: { q: '', type: '' },
     syn: { delivery: 'chain', payload: 'burn', modA: 'burn_touch' },
-    builder: { main: 'pistol', offhand: '', passives: [], actives: [], ult: null, name: '', modules: {} },
+    builder: { main: 'pistol', offhand: '', passives: [], actives: [], ult: null, item: '', name: '', modules: {} },
     draft: { level: 1, offer: [], banned: [], picks: 0 },
   };
   function load() {
@@ -37,6 +37,7 @@
   const W = (id) => D.weapons.find((w) => w.id === id);
   const M = (id) => D.mods.find((m) => m.id === id);
   const MD = (id) => (D.modules || []).find((m) => m.id === id);
+  const IT = (id) => (D.items || []).find((m) => m.id === id);
   const P = (id) => D.payloads[id];
   const DL = (id) => D.deliveries[id];
   const EL = (id) => D.elements[id] || D.elements.none;
@@ -100,6 +101,7 @@
     const tags = loadoutTags(build.main, build.offhand);
     const entries = [
       ...(build.modules || []).map((id) => ({ mod: MD(id), stacks: 1, isModule: true })),
+      ...(build.item ? [{ mod: IT(build.item), stacks: 1, isItem: true }] : []),
       ...build.mods.map((x) => ({ mod: M(x.id), stacks: Math.max(1, x.stacks || 1) })),
     ].filter((e) => e.mod);
     const out = { main, off, tags, stats: {}, channels: [], statuses: {}, reactions: [], selfs: [], warnings: [], affinities: [], wow: 0, power: 0, modules: entries.filter((e) => e.isModule).map((e) => e.mod) };
@@ -145,6 +147,7 @@
       if (t === 'periodic') { const r = 1 / (ef.everySec || 5); return { rate: r, label: `раз в ${ef.everySec || 5} с` }; }
       if (t === 'on_activate') { const cd = (mod.cooldown || 10) * (1 - cdr); const r = up.activateMult / cd; return { rate: r, label: `КД ${fmt(cd, 0)} с${up.activateMult > 1 ? ` ×${up.activateMult}` : ''}` }; }
       if (t === 'on_ult') return { rate: null, label: 'по заряду ульты' };
+      if (t === 'on_use') return { rate: null, label: `предмет · ${mod.uses || 1} заряд(а)` };
       if (t === 'passive') return { rate: null, label: 'постоянно' };
       return { rate: null, label: 'ситуативно' };
     }
@@ -189,7 +192,7 @@
       if (['burst', 'wave', 'zone', 'pull', 'trap'].includes(ef.delivery)) targets = densityTargets(params.radius);
       else if (['split', 'ricochet', 'pierce', 'orbit'].includes(ef.delivery)) targets = params.count;
       else if (['echo', 'reflect', 'summon'].includes(ef.delivery)) targets = 1;
-      let tps = r.rate == null ? 0.3 * targets : r.rate * targets;
+      let tps = r.rate == null ? (ef.trigger === 'on_use' ? 0.15 : 0.3) * targets : r.rate * targets;
       if (ef.delivery === 'summon' && (ef.dmg || 0) > 0) tps = base.hitsPerSec * (ef.dmg || 0.5) * Math.min(1, (params.duration || 10) / Math.max(1, e.mod.cooldown || 1));
       if (ef.repeatSec && params.duration) tps = targets * (params.duration / ef.repeatSec) * (r.rate ?? 0.02);
       const nm = compositeName(dl, payloadIds, ef.delivery);
@@ -273,10 +276,12 @@
     const smart = !(dc.firstOfferRandom && UI.draft.picks === 0 && build.mods.length === 0);
     const c = D.config; const nPass = build.mods.filter((x) => M(x.id)?.type === 'passive').length; const nAct = build.mods.filter((x) => M(x.id)?.type === 'active').length; const hasUlt = build.mods.some((x) => M(x.id)?.type === 'ultimate');
     const out = [];
+    const forcedUlt = !!c.ultForcedAtMin && level >= c.ultMinLevel && !hasUlt;
     for (const m of D.mods) {
       if (banned.includes(m.id)) continue;
       const a = affinity(tags, m); if (!a.ok) continue;
       if (m.type === 'ultimate' && (level < c.ultMinLevel || hasUlt)) continue;
+      if (forcedUlt && m.type !== 'ultimate') continue;
       if (m.type === 'active' && nAct >= c.activeSlots && !owned[m.id]) continue;
       if (m.type === 'passive' && !owned[m.id] && nPass >= c.passiveSlots) continue;
       if (owned[m.id] && owned[m.id] >= (m.maxStacks || 1)) continue;
@@ -292,7 +297,7 @@
     }
     const total = out.reduce((s, x) => s + x.weight, 0) || 1;
     out.forEach((x) => { x.p = x.weight / total; });
-    return { list: out.sort((x, y) => y.weight - x.weight), peak, smart, total };
+    return { list: out.sort((x, y) => y.weight - x.weight), peak, smart, total, forcedUlt };
   }
   function drawOffer(cands, n) {
     const pool = [...cands]; const picked = [];
@@ -409,6 +414,14 @@
       <div class="tablewrap"><table><thead><tr><th>Слот</th><th>Редк.</th><th>Модуль</th><th style="min-width:260px">Эффекты</th><th style="min-width:220px">Описание</th><th>Оружие</th><th class="num">Сила</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   };
 
+  R.items = () => {
+    const cats = [...new Set((D.items || []).map((i) => i.cat))];
+    const rows = (D.items || []).slice().sort((a, b) => cats.indexOf(a.cat) - cats.indexOf(b.cat) || rarityRank(a.rarity) - rarityRank(b.rarity)).map((it) => `<tr data-act="it-json" data-id="${it.id}" style="cursor:pointer"><td><span class="tag wt">${esc(it.cat)}</span></td><td>${rarPill(it.rarity)}</td><td><b>${esc(it.name)}</b><div class="mono muted">${esc(it.id)}</div></td><td class="num">${it.uses || 1}</td><td>${effectChips(it)}</td><td>${esc(it.desc)}</td><td class="num">${it.power || 0}</td></tr>`).join('');
+    return `<div class="row"><h1 style="margin:0">Предметы</h1><span style="flex:1"></span><button class="btn primary" data-act="it-add">+ Предмет</button></div>
+      <p class="small muted">${D.config.itemSlots || 1} слот. Подбираются на карте, между катками не сохраняются. Категории: ${cats.map((c) => `<span class="tag wt">${esc(c)}</span>`).join(' ')}. Боевые предметы идут через тот же движок: «Резонансный заряд» наследует все статусы билда и запускает все реакции одной кнопкой; ЭМИ, дым и голограмма — единственные способы сломать автонаводку врага без щита.</p>
+      <div class="tablewrap"><table><thead><tr><th>Категория</th><th>Редк.</th><th>Предмет</th><th class="num">Зарядов</th><th style="min-width:240px">Эффекты</th><th style="min-width:240px">Описание</th><th class="num">Сила</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  };
+
   R.synergy = () => {
     const statusIds = Object.keys(D.payloads);
     const rxMap = {}; D.reactions.forEach((r, i) => { rxMap[r.a + '|' + r.b] = i; rxMap[r.b + '|' + r.a] = i; });
@@ -474,7 +487,7 @@
     for (const s of (o?.moduleSlots || [])) { const id = (b.modules || {})[b.offhand + ':' + s]; if (id && MD(id)) out.push(id); }
     return out;
   }
-  function builderBuild() { const b = UI.builder; return { main: b.main, offhand: b.offhand, modules: builderModules(), mods: [...b.passives, ...b.actives.filter(Boolean).map((id) => ({ id, stacks: 1 })), ...(b.ult ? [{ id: b.ult, stacks: 1 }] : [])] }; }
+  function builderBuild() { const b = UI.builder; return { main: b.main, offhand: b.offhand, modules: builderModules(), item: IT(b.item) ? b.item : '', mods: [...b.passives, ...b.actives.filter(Boolean).map((id) => ({ id, stacks: 1 })), ...(b.ult ? [{ id: b.ult, stacks: 1 }] : [])] }; }
   function inBuild(id) { return builderBuild().mods.some((x) => x.id === id); }
   function addMod(id) {
     const m = M(id); if (!m) return; const b = UI.builder; const c = D.config;
@@ -534,6 +547,9 @@
       <div class="bsec"><div class="bh">Пассивные <span class="muted">${b.passives.length}/${c.passiveSlots}</span></div>${b.passives.map((x) => entry(x, 'passive')).join('') || '<div class="empty">кликни мод в библиотеке слева</div>'}</div>
       <div class="bsec"><div class="bh">Активные <span class="muted">${b.actives.filter(Boolean).length}/${c.activeSlots}</span></div>${b.actives.filter(Boolean).map((id) => entry({ id }, 'active')).join('') || '<div class="empty">—</div>'}</div>
       <div class="bsec"><div class="bh">Ультимейт</div>${b.ult ? entry({ id: b.ult }, 'ultimate') : '<div class="empty">—</div>'}</div>
+      <div class="bsec"><div class="bh">Предмет <span class="muted">(с карты, не сохраняется)</span></div>
+        <select data-isel style="width:100%"><option value="">— пусто —</option>${(D.items || []).map((it) => `<option value="${it.id}" ${b.item === it.id ? 'selected' : ''}>${esc(it.name)} · ${esc(it.cat)} · ${esc(D.rarityNames[it.rarity])}</option>`).join('')}</select>
+        ${IT(b.item) ? `<div class="be" style="border-left-color:${D.rarityColors[IT(b.item).rarity]};margin-top:4px"><div style="flex:1"><div class="ef">${effectChips(IT(b.item))}</div><div class="small muted">${esc(IT(b.item).desc)} · зарядов: ${IT(b.item).uses || 1}</div></div></div>` : ''}</div>
       <div class="row" style="margin-top:10px"><input placeholder="название билда" value="${esc(b.name)}" data-bname style="flex:1"><button class="btn primary sm" data-act="build-save">Сохранить</button></div>
       ${builds.length ? `<div class="bsec"><div class="bh">Сохранённые</div>${builds.map((sb, i) => { const r2 = computeBuild(sb.build); return `<div class="be" style="border-left-color:var(--line)"><div style="flex:1"><b>${esc(sb.name)}</b> <span class="small muted">${esc(W(sb.build.main)?.name)} · ${r2.reactions.length} реакц. · ★${r2.wow}</span></div><button class="btn sm" data-act="build-load" data-i="${i}">Открыть</button><button class="btn sm ghost" data-act="build-del" data-i="${i}">✕</button></div>`; }).join('')}</div>` : ''}`;
 
@@ -585,7 +601,7 @@
       <div class="card">
         <div class="row">
           <label class="f">Уровень<input type="number" min="1" max="${c.maxLevel}" value="${d.level}" data-draft-level style="width:64px"></label>
-          <div class="small">${rw.peak ? '<span class="tag" style="color:var(--warn)">★ пик — редкость на ступень выше</span>' : ''}${!cands.smart ? '<span class="tag">первый оффер — без умных весов</span>' : '<span class="tag" style="color:var(--accent2)">умный драфт</span>'} <span class="muted">веса редкости: ${D.rarities.map((r) => `<span style="color:${D.rarityColors[r]}">${rw.weights[r] || 0}</span>`).join(' / ')} · кандидатов ${cands.list.length}</span></div>
+          <div class="small">${cands.forcedUlt ? '<span class="tag" style="color:#ffb27f">◆ выбор ультимейта</span>' : ''}${rw.peak ? '<span class="tag" style="color:var(--warn)">★ пик — редкость на ступень выше</span>' : ''}${!cands.smart ? '<span class="tag">первый оффер — без умных весов</span>' : '<span class="tag" style="color:var(--accent2)">умный драфт</span>'} <span class="muted">веса редкости: ${D.rarities.map((r) => `<span style="color:${D.rarityColors[r]}">${rw.weights[r] || 0}</span>`).join(' / ')} · кандидатов ${cands.list.length}</span></div>
           <span style="flex:1"></span>
           <button class="btn primary" data-act="draft-gen">Сгенерировать оффер</button><button class="btn sm" data-act="draft-reset">Сброс (ур. 1)</button>
         </div>
@@ -620,6 +636,8 @@
       weapons: D.weapons.map((w) => ({ id: w.id, name: w.name, kind: w.kind, hands: w.hands, dmg: w.dmg, aps: w.aps, projectiles: w.projectiles, projSpeed: w.projSpeed, crit: w.crit, critMult: w.critMult, mag: w.mag, reload: w.reload, tags: w.tags, moduleSlots: w.moduleSlots || [],
         range: { min: w.rangeMin || 0, optimal: w.rangeOpt ?? w.range, max: w.range, falloffMult: w.falloff ?? 1, closeMult: w.closeMult ?? 1, ignoresObstacles: w.projSpeed === 0 } })),
       rangeStats: ['rangePct', 'rangeOptPct', 'rangeMinAdd', 'falloffAdd', 'closeMultAdd'],
+      slots: { passive: D.config.passiveSlots, active: D.config.activeSlots, ultimate: D.config.ultSlots, item: D.config.itemSlots || 1, ultMinLevel: D.config.ultMinLevel, maxLevel: D.config.maxLevel },
+      items: (D.items || []).map((it) => ({ id: it.id, name: it.name, cat: it.cat, rarity: it.rarity, uses: it.uses || 1, effects: it.effects || [] })),
       mods: D.mods.map((m) => ({ id: m.id, name: m.name, type: m.type, rarity: m.rarity, cooldown: m.cooldown, charge: m.charge, maxStacks: m.maxStacks, stats: m.stats || {}, effects: m.effects || [], weapon: m.weapon || {} })),
       moduleSlots: D.moduleSlots, modules: (D.modules || []).map((m) => ({ id: m.id, name: m.name, slot: m.slot, rarity: m.rarity, stats: m.stats || {}, effects: m.effects || [], weapon: m.weapon || {} })) };
   }
@@ -676,6 +694,8 @@
       'rm': () => { removeMod(id); render(); },
       'to-builder-pair': () => { removeMod(t.dataset.a); addMod(t.dataset.a); if (t.dataset.module) { UI.builder.modules = UI.builder.modules || {}; UI.builder.modules[UI.builder.main + ':' + t.dataset.module] = t.dataset.b; } else { removeMod(t.dataset.b); addMod(t.dataset.b); } UI.tab = 'builder'; render(); },
       'md-json': () => { const m = MD(id); jsonEditor(`Модуль: ${m.name}`, m, (v) => { if (!v.id || !v.name || !v.slot) return 'нужны id, name, slot'; if (!D.moduleSlots[v.slot]) return 'неизвестный слот ' + v.slot; if (v.id !== m.id && MD(v.id)) return 'id занят'; for (const ef of v.effects || []) { if (ef.delivery && !DL(ef.delivery)) return 'неизвестная доставка ' + ef.delivery; if (ef.payload && !P(ef.payload)) return 'неизвестная нагрузка ' + ef.payload; } Object.keys(m).forEach((k) => delete m[k]); Object.assign(m, v); }, { onDelete: () => { D.modules = D.modules.filter((x) => x !== m); }, hint: 'slot: core|barrel|frame · effects как у модов' }); },
+      'it-json': () => { const it = IT(id); jsonEditor(`Предмет: ${it.name}`, it, (v) => { if (!v.id || !v.name) return 'нужны id и name'; if (v.id !== it.id && IT(v.id)) return 'id занят'; for (const ef of v.effects || []) { if (ef.delivery && !DL(ef.delivery)) return 'неизвестная доставка ' + ef.delivery; if (ef.payload && !P(ef.payload)) return 'неизвестная нагрузка ' + ef.payload; } Object.keys(it).forEach((k) => delete it[k]); Object.assign(it, v); }, { onDelete: () => { D.items = D.items.filter((x) => x !== it); }, hint: 'trigger: on_use · uses: зарядов · cat: категория' }); },
+      'it-add': () => jsonEditor('Новый предмет', { id: 'it_new', name: 'Новый предмет', cat: 'боевой', rarity: 'uncommon', uses: 1, power: 4, desc: '', effects: [{ trigger: 'on_use', delivery: 'burst', radius: 4, dmg: 2, payload: 'burn' }] }, (v) => { if (IT(v.id)) return 'id занят'; (D.items = D.items || []).push(v); }),
       'md-add': () => jsonEditor('Новый модуль', { id: 'new_module', name: 'Новый модуль', slot: 'core', rarity: 'uncommon', power: 3, desc: '', stats: {}, effects: [{ trigger: 'on_hit', every: 2, payload: 'burn' }], weapon: {} }, (v) => { if (MD(v.id)) return 'id занят'; (D.modules = D.modules || []).push(v); }),
       'build-clear': () => { UI.builder.passives = []; UI.builder.actives = []; UI.builder.ult = null; render(); },
       'draft-gen': () => { const build = builderBuild(); const res = computeBuild(build); const cands = draftCandidates(build, res, UI.draft.level, UI.draft.banned); UI.draft.offer = drawOffer(cands.list, D.config.offersPerLevel).map((x) => x.mod.id); render(); },
@@ -684,7 +704,7 @@
       'draft-unban': () => { UI.draft.banned = UI.draft.banned.filter((x) => x !== id); render(); },
       'draft-reset': () => { UI.draft = { level: 1, offer: [], banned: [], picks: 0 }; render(); },
       'build-save': () => { builds.push({ name: UI.builder.name.trim() || `Билд ${builds.length + 1}`, build: clone(builderBuild()) }); saveBuilds(); UI.builder.name = ''; render(); },
-      'build-load': () => { const sb = builds[+t.dataset.i]; const b = UI.builder; b.main = sb.build.main; b.offhand = sb.build.offhand; b.passives = []; b.actives = []; b.ult = null; b.modules = {}; for (const id of sb.build.modules || []) { const md = MD(id); if (!md) continue; const w = (W(b.main)?.moduleSlots || []).includes(md.slot) ? b.main : b.offhand; if (w) b.modules[w + ':' + md.slot] = id; } for (const x of sb.build.mods) { const m = M(x.id); if (!m) continue; if (m.type === 'passive') b.passives.push({ id: x.id, stacks: x.stacks || 1 }); else addMod(x.id); } b.name = sb.name; render(); },
+      'build-load': () => { const sb = builds[+t.dataset.i]; const b = UI.builder; b.main = sb.build.main; b.offhand = sb.build.offhand; b.passives = []; b.actives = []; b.ult = null; b.item = sb.build.item || ''; b.modules = {}; for (const id of sb.build.modules || []) { const md = MD(id); if (!md) continue; const w = (W(b.main)?.moduleSlots || []).includes(md.slot) ? b.main : b.offhand; if (w) b.modules[w + ':' + md.slot] = id; } for (const x of sb.build.mods) { const m = M(x.id); if (!m) continue; if (m.type === 'passive') b.passives.push({ id: x.id, stacks: x.stacks || 1 }); else addMod(x.id); } b.name = sb.name; render(); },
       'build-del': () => { builds.splice(+t.dataset.i, 1); saveBuilds(); render(); },
       'meta-json': () => jsonEditor('Мета', D.meta, (v) => { D.meta = v; }),
       'bld-json': () => { const bd = D.meta.buildings[+t.dataset.i]; jsonEditor(bd.name, bd, (v) => Object.assign(bd, v), { onDelete: () => D.meta.buildings.splice(+t.dataset.i, 1) }); },
@@ -707,6 +727,7 @@
     else if (t.dataset.syn !== undefined) { UI.syn[t.dataset.syn] = t.value; render(); }
     else if (t.dataset.bsel) { UI.builder[t.dataset.bsel] = t.value; if (t.dataset.bsel === 'main' && W(t.value)?.hands !== '1h') UI.builder.offhand = ''; render(); }
     else if (t.dataset.dist !== undefined) { UI.builder.dist = +t.value; render(); }
+    else if (t.dataset.isel !== undefined) { UI.builder.item = t.value; render(); }
     else if (t.dataset.draftLevel !== undefined) { UI.draft.level = Math.max(1, +t.value || 1); UI.draft.offer = []; render(); }
     else if (t.dataset.msel) { UI.builder.modules = UI.builder.modules || {}; UI.builder.modules[t.dataset.msel] = t.value; render(); }
     else if (t.dataset.stack !== undefined) { const p = UI.builder.passives.find((x) => x.id === t.dataset.stack); if (p) p.stacks = Math.max(1, +t.value || 1); render(); }

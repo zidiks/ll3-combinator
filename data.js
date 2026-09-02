@@ -8,7 +8,9 @@ window.DEFAULT_DATA = {
   version: 2,
 
   config: {
-    maxLevel: 15, offersPerLevel: 3, activeSlots: 4, ultSlots: 1, passiveSlots: 8, ultMinLevel: 12,
+    // 9 выборов = 5 пассивок + 3 актива + 1 ульта → к 10-му уровню билд собран; 11–12 уровни — стаки и добор
+    maxLevel: 12, offersPerLevel: 3, activeSlots: 3, ultSlots: 1, passiveSlots: 5, itemSlots: 1, ultMinLevel: 10,
+    ultForcedAtMin: true,        // на ultMinLevel, если ульты нет — оффер целиком из ульт
     enemyHp: 600, eliteHp: 4000, bossHp: 60000,
     density: 4,                 // сколько врагов в среднем в АоЕ радиусом ~4 м (для оценки частоты)
     // Дальность: до rangeMin — урон × closeMult; rangeMin..rangeOpt — 100%; rangeOpt..range — линейный спад до falloff; дальше автонаводка не захватывает цель
@@ -23,7 +25,7 @@ window.DEFAULT_DATA = {
     artifactEssence: { common: 5, uncommon: 15, rare: 40, epic: 120, legendary: 400 },
     // ---------- Правила выдачи модов в катке (зафиксировано)
     draft: {
-      peakLevels: [5, 10, 14],   // «большой оффер»: редкость сдвигается на ступень выше
+      peakLevels: [5, 10],       // «большой оффер»: редкость сдвигается на ступень выше (10 — ульта)
       peakShift: 1,
       wReaction: 3.0,            // вес за каждую новую реакцию, которую даст мод
       wComposite: 1.5,           // вес за новый именованный композит (огненная молния и т.п.)
@@ -50,7 +52,7 @@ window.DEFAULT_DATA = {
   triggers: {
     on_hit: 'при попадании', on_crit: 'при крите', on_kill: 'при убийстве', on_block: 'при блоке', on_dodge: 'при уклонении',
     on_low_hp: 'при низком HP', on_death: 'при смерти', on_reload: 'при перезарядке', periodic: 'периодически',
-    on_activate: 'активация', on_ult: 'ультимейт', passive: 'постоянно',
+    on_activate: 'активация', on_ult: 'ультимейт', on_use: 'использование предмета', passive: 'постоянно',
   },
 
   // ---------- НАГРУЗКИ (что накладывается). adj: [м, ж, ср, мн], stem — для сложных прилагательных
@@ -361,6 +363,28 @@ window.DEFAULT_DATA = {
     { id: 'frame_reactive', name: 'Реактивная пластина', slot: 'frame', rarity: 'rare', power: 4, desc: 'Блок даёт щит 5% HP.', effects: [{ trigger: 'on_block', payload: 'shield', amount: 0.05 }], weapon: { requires: ['block'] } },
   ],
 
+  // ---------- ПРЕДМЕТЫ — подбираются на карте, 1 слот, между катками не сохраняются
+  // uses: зарядов; эффекты по той же схеме (trigger: on_use). Категории: боевой / выживание / информация / экономика / PvP
+  items: [
+    { id: 'it_cryo_grenade', name: 'Криогранаты', cat: 'боевой', rarity: 'uncommon', uses: 2, power: 4, desc: 'Заморозка всех в 5 м на 2 с.', effects: [{ trigger: 'on_use', delivery: 'wave', radius: 5, payload: 'chill', stacks: 5 }] },
+    { id: 'it_thermite', name: 'Термитная шашка', cat: 'боевой', rarity: 'uncommon', uses: 2, power: 4, desc: 'Горящая зона 3 м на 6 с.', effects: [{ trigger: 'on_use', delivery: 'zone', radius: 3, duration: 6, dmg: 0.5, payload: 'burn' }] },
+    { id: 'it_emp', name: 'ЭМИ-граната', cat: 'PvP', rarity: 'rare', uses: 1, power: 6, desc: 'Разряд 6 м; у всех в радиусе (и игроков) отключена автонаводка на 3 с.', effects: [{ trigger: 'on_use', delivery: 'burst', radius: 6, dmg: 1, payload: 'shock', self: 'автонаводка врагов отключена 3 с' }] },
+    { id: 'it_gravity_mine', name: 'Гравитационная мина', cat: 'боевой', rarity: 'rare', uses: 1, power: 5, desc: 'Мина: при срабатывании стягивает всех в 4 м на 2 с.', effects: [{ trigger: 'on_use', delivery: 'trap', radius: 4, duration: 2, dmg: 1.5 }] },
+    { id: 'it_resonance', name: 'Резонансный заряд', cat: 'боевой', rarity: 'epic', uses: 1, power: 8, desc: 'Взрыв 5 м, несёт ВСЕ твои статусы — одна кнопка запускает все реакции билда.', effects: [{ trigger: 'on_use', delivery: 'burst', radius: 5, dmg: 3, inherits: true }] },
+    { id: 'it_medkit', name: 'Аптечка', cat: 'выживание', rarity: 'common', uses: 1, power: 3, desc: 'Лечение 50% HP за 3 с.', effects: [{ trigger: 'on_use', payload: 'heal', amount: 0.5 }] },
+    { id: 'it_nanoshield', name: 'Нано-щит', cat: 'выживание', rarity: 'uncommon', uses: 1, power: 4, desc: 'Щит 30% HP на 10 с.', effects: [{ trigger: 'on_use', payload: 'shield', amount: 0.3 }] },
+    { id: 'it_smoke', name: 'Дымовая шашка', cat: 'PvP', rarity: 'common', uses: 2, power: 3, desc: 'Облако 5 м на 5 с: автонаводка внутри не работает ни у кого.', effects: [{ trigger: 'on_use', delivery: 'zone', radius: 5, duration: 5, dmg: 0 }] },
+    { id: 'it_hologram', name: 'Голограмма', cat: 'PvP', rarity: 'rare', uses: 1, power: 5, desc: 'Копия тебя на 8 с, автонаводка врагов и игроков переключается на неё.', effects: [{ trigger: 'on_use', delivery: 'summon', duration: 8, dmg: 0 }] },
+    { id: 'it_stim', name: 'Стимулятор', cat: 'боевой', rarity: 'uncommon', uses: 1, power: 4, desc: '+30% скорости атаки и бега на 8 с.', effects: [{ trigger: 'on_use', self: '+30% скорости атаки и бега 8 с' }] },
+    { id: 'it_radar', name: 'Радар-пульсар', cat: 'информация', rarity: 'uncommon', uses: 2, power: 4, desc: 'Показывает элитников, игроков и артефакты в 80 м на 10 с.', effects: [{ trigger: 'on_use', self: 'разведка 80 м' }] },
+    { id: 'it_evac_beacon', name: 'Маяк эвакуации', cat: 'экономика', rarity: 'rare', uses: 1, power: 6, desc: 'Вызывает точку эвакуации рядом (60 с ожидания, видно всем).', effects: [{ trigger: 'on_use', self: 'точка эвакуации здесь через 60 с' }] },
+    { id: 'it_reroll_token', name: 'Жетон реролла', cat: 'экономика', rarity: 'rare', uses: 1, power: 5, desc: 'Бесплатный реролл слота у автомата (редкость слота сохраняется).', effects: [{ trigger: 'on_use', self: 'реролл без артефакта' }] },
+    { id: 'it_xp_booster', name: 'Нейробустер', cat: 'экономика', rarity: 'uncommon', uses: 1, power: 4, desc: '+1 уровень мгновенно.', effects: [{ trigger: 'on_use', self: '+1 уровень' }] },
+    { id: 'it_artifact_scanner', name: 'Сканер артефактов', cat: 'информация', rarity: 'uncommon', uses: 1, power: 3, desc: 'Подсвечивает артефакты rare+ в 150 м на 20 с.', effects: [{ trigger: 'on_use', self: 'скан артефактов 150 м' }] },
+    { id: 'it_ult_charge', name: 'Ядро-ускоритель', cat: 'боевой', rarity: 'epic', uses: 1, power: 7, desc: 'Ульта заряжена мгновенно.', effects: [{ trigger: 'on_use', self: 'заряд ульты 100%' }] },
+    { id: 'it_overload', name: 'Перегрузка', cat: 'боевой', rarity: 'epic', uses: 1, power: 7, desc: '10 с все активные способности без кулдауна.', effects: [{ trigger: 'on_use', self: 'кулдауны активок 0 на 10 с' }] },
+  ],
+
   meta: {
     currencies: [
       { id: 'scrap', name: 'Лом', source: 'Обычный лут, ящики, караваны.', sink: 'Уровни зданий, тиры оружия.' },
@@ -373,6 +397,8 @@ window.DEFAULT_DATA = {
       'Артефакт — главный конфликт катки: реролл сейчас или эссенция в мету.',
       'Выдача модов (зафиксировано): 1) оружие + модуль формируют пул — несовместимое не падает, совместимое весит больше; 2) умный драфт — после первого оффера веса смещаются к модам, дающим новую реакцию или композит с тем, что уже есть; 3) превью в оффере — «станет Огненной молнией, откроет Плазменную дугу»; 4) пики на уровнях 5/10/14 — три мода на редкость выше; 5) бан-жетоны с карты — убрать мод из своих офферов до конца катки. Пул до катки НЕ курируется: лаборатория только открывает моды в общий пул.',
       'Ульта-слот открывается в мете за ядро босса.',
+      'Слоты в катке: 5 пассивок + 3 актива + 1 ульта = 9 выборов → к 10-му уровню билд собран, на 10-м оффер целиком из ульт. Мало слотов = мало одновременных статусов = читаемый VFX; вау-эффект достигается глубиной (наследование, реакции), а не количеством.',
+      'Предметы: 1 слот, подбираются на карте, не сохраняются между катками. Это «джокер» катки: боевые (заморозка, резонансный заряд со всеми статусами билда), выживание, информация (радар, сканер артефактов), экономика (маяк эвакуации, жетон реролла, +1 уровень), PvP (ЭМИ, дым, голограмма — все ломают автонаводку).',
       'Тиры оружия T1–T5: +3% за тир и черта на T3/T5.',
       'Модули оружия — мета-слой синергии: ядро (статус), излучатель (доставка), каркас (статы). Слоты открываются тирами: T1 — ядро, T3 — излучатель, T5 — каркас. Модуль выбирается до катки и задаёт стартовый элемент билда — игрок драфтит моды под него.',
     ],
