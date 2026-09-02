@@ -22,6 +22,7 @@
     lib: { q: '', type: '' },
     syn: { delivery: 'chain', payload: 'burn', modA: 'burn_touch' },
     builder: { main: 'pistol', offhand: '', passives: [], actives: [], ult: null, name: '', modules: {} },
+    draft: { level: 1, offer: [], banned: [], picks: 0 },
   };
   function load() {
     try { const raw = localStorage.getItem(LS_KEY); if (raw) { const d = JSON.parse(raw); if (d && d.version === 2 && d.mods) return d; } } catch (e) { /* */ }
@@ -222,6 +223,57 @@
     return out;
   }
 
+  // ---------------- DRAFT: правила выдачи модов ----------------
+  function rarityWeightsAt(level) {
+    const c = D.config; const dc = c.draft || {};
+    const row = [...c.rarityByLevel].reverse().find((r) => r.from <= level) || c.rarityByLevel[0];
+    let w = { ...row.weights };
+    const peak = (dc.peakLevels || []).includes(level);
+    if (peak) { // сдвиг на ступень выше: вес редкости r = вес редкости r-1
+      const sh = dc.peakShift || 1; const out = {}; D.rarities.forEach((r, i) => { out[r] = i - sh >= 0 ? (w[D.rarities[i - sh]] || 0) : 0; }); w = out;
+    }
+    return { weights: w, peak };
+  }
+  // кандидаты для оффера с весами и превью того, что мод даст текущему билду
+  function draftCandidates(build, res, level, banned = []) {
+    const dc = D.config.draft || {}; const tags = res.tags; const { weights, peak } = rarityWeightsAt(level);
+    const owned = {}; for (const x of build.mods) owned[x.id] = (owned[x.id] || 0) + (x.stacks || 1);
+    const knownCh = new Set(res.channels.map((c) => c.name)); const knownRx = new Set(res.reactions.map((r) => r.name));
+    const smart = !(dc.firstOfferRandom && UI.draft.picks === 0 && build.mods.length === 0);
+    const c = D.config; const nPass = build.mods.filter((x) => M(x.id)?.type === 'passive').length; const nAct = build.mods.filter((x) => M(x.id)?.type === 'active').length; const hasUlt = build.mods.some((x) => M(x.id)?.type === 'ultimate');
+    const out = [];
+    for (const m of D.mods) {
+      if (banned.includes(m.id)) continue;
+      const a = affinity(tags, m); if (!a.ok) continue;
+      if (m.type === 'ultimate' && (level < c.ultMinLevel || hasUlt)) continue;
+      if (m.type === 'active' && nAct >= c.activeSlots && !owned[m.id]) continue;
+      if (m.type === 'passive' && !owned[m.id] && nPass >= c.passiveSlots) continue;
+      if (owned[m.id] && owned[m.id] >= (m.maxStacks || 1)) continue;
+      const base = weights[m.rarity] || 0; if (base <= 0) continue;
+      let newCh = [], newRx = [];
+      if (!owned[m.id]) {
+        const r1 = computeBuild({ ...build, mods: [...build.mods, { id: m.id, stacks: 1 }] });
+        newCh = r1.channels.filter((x) => !knownCh.has(x.name) && x.kind !== 'direct' && x.payloads.some((p) => !P(p.id).self)).map((x) => x.name);
+        newRx = r1.reactions.filter((x) => !knownRx.has(x.name)).map((x) => x.name);
+      }
+      const syn = smart ? 1 + (dc.wReaction || 0) * newRx.length + (dc.wComposite || 0) * newCh.length + (dc.wAffinity || 0) * (a.score - 1) : 1;
+      out.push({ mod: m, a, base, syn, weight: base * syn, newCh, newRx, stack: owned[m.id] ? owned[m.id] + 1 : 0 });
+    }
+    const total = out.reduce((s, x) => s + x.weight, 0) || 1;
+    out.forEach((x) => { x.p = x.weight / total; });
+    return { list: out.sort((x, y) => y.weight - x.weight), peak, smart, total };
+  }
+  function drawOffer(cands, n) {
+    const pool = [...cands]; const picked = [];
+    while (picked.length < n && pool.length) {
+      const tot = pool.reduce((s, x) => s + x.weight, 0); let r = Math.random() * tot; let i = 0;
+      for (; i < pool.length; i++) { r -= pool[i].weight; if (r <= 0) break; }
+      picked.push(pool[Math.min(i, pool.length - 1)]); pool.splice(Math.min(i, pool.length - 1), 1);
+    }
+    return picked;
+  }
+  const previewText = (x) => [...x.newCh.map((n) => `станет «${n}»`), ...x.newRx.map((n) => `откроет «${n}»`)].join(', ');
+
   // ---------------- VFX recipe ----------------
   function vfxRecipe(ch) {
     const statuses = ch.payloads.filter((p) => !P(p.id).self).map((p) => p.id);
@@ -272,6 +324,15 @@
         <div class="card"><h3>4. Реакции</h3><p class="small">Два статуса на одной цели → именованная реакция со своим VFX (${D.reactions.length} шт.). Интенсивность = min(наложений/с двух статусов): сразу видно, что реально стреляет, а что «на бумаге».</p>
           <h3>5. Имена и VFX собираются сами</h3><p class="small">Имя = прилагательное нагрузки в роде существительного доставки: «ледяная цепь», «огненно-электрический взрыв». Ручные имена — во вкладке «Синергии». VFX-рецепт = примитивы доставки, тонированные цветами элементов, + аура статуса. В Unity: один VFX Graph subgraph на примитив с экспонированными ColorA/ColorB/Radius — любая комбинация собирается без нового ассета.</p></div>
         <div class="card"><h3>Кривая редкости</h3><div class="curve">${curve.join('')}</div><p class="small muted">Пул: ${D.mods.length} модов · ${D.rarities.map((r) => `<span style="color:${D.rarityColors[r]}">${byR[r] || 0}</span>`).join(' / ')} · ${typeOrder.map((t) => `${typeName[t]} ${byT[t] || 0}`).join(', ')}</p></div>
+      </div>
+      <h2>Как выдаются моды в катке (зафиксировано)</h2>
+      <div class="grid cols-3">
+        <div class="card"><h3>1. Оружие + модуль формируют пул</h3><p class="small">Несовместимое с лоадаутом не падает вообще, совместимое с бонусом affinity весит больше. «Колода» выбирается стволом и модулем, а не списком.</p></div>
+        <div class="card"><h3>2. Умный драфт</h3><p class="small">Первый оффер случайный. Дальше вес мода = вес редкости × (1 + ${D.config.draft?.wReaction ?? 3}·новых реакций + ${D.config.draft?.wComposite ?? 1.5}·новых композитов + ${D.config.draft?.wAffinity ?? 0.8}·(affinity − 1)). Игра ведёт к вау-билду, не убивая сюрприз.</p></div>
+        <div class="card"><h3>3. Превью в оффере</h3><p class="small">Рядом с модом: «станет Огненной молнией, откроет Плазменную дугу». Имена и реакции генерируются, превью считается тем же движком.</p></div>
+        <div class="card"><h3>4. Пики на уровнях ${(D.config.draft?.peakLevels || []).join(', ')}</h3><p class="small">Большой оффер: веса редкости сдвигаются на ступень выше. Игрок знает, что пик будет, но не знает какой.</p></div>
+        <div class="card"><h3>5. Бан-жетоны</h3><p class="small">${D.config.draft?.banTokens ?? 2} жетона за катку подбираются на карте. Жетон убирает мод из твоих офферов до конца боя — агентность как ресурс, а не домашка.</p></div>
+        <div class="card"><h3>Лаборатория = открытия</h3><p class="small">Исследованный мод добавляется в общий пул навсегда. Кураторства пула до катки нет.</p></div>
       </div>
       <h2>Цикл катки</h2><div class="card"><div class="tl">${D.meta.runLoop.map((p) => `<div class="ph"><span class="t">${esc(p.phase)}</span><span class="m">${esc(p.minutes)} мин</span><div class="small">${esc(p.text)}</div></div>`).join('')}</div></div>`;
   };
@@ -458,10 +519,39 @@
           ${selfs ? `<h3>Утилити</h3><div>${selfs}</div>` : ''}</div>
       </div>
     </div>
+    ${draftPanel(build, res)}
     <h2>Поток эффектов</h2><div class="card" style="padding:6px">${graphSvg(res)}</div>
     <h2>Каналы эффектов (${res.channels.length}) — что летит, как называется, из каких VFX собирается</h2>
     <div class="grid cols-2">${chCards}</div>`;
   };
+
+  function draftPanel(build, res) {
+    const d = UI.draft; const dc = D.config.draft || {}; const c = D.config;
+    d.level = Math.max(1, Math.min(c.maxLevel, d.level || 1));
+    const cands = draftCandidates(build, res, d.level, d.banned);
+    const rw = rarityWeightsAt(d.level);
+    const offer = (d.offer || []).map((id) => cands.list.find((x) => x.mod.id === id)).filter(Boolean);
+    const offerCards = offer.length ? offer.map((x) => `<div class="offer" style="border-color:${D.rarityColors[x.mod.rarity]}">
+        <div class="row" style="gap:6px">${rarPill(x.mod.rarity)}${typePill(x.mod.type)}<b style="font-size:14px">${esc(x.mod.name)}</b>${x.stack ? `<span class="tag">стак ${x.stack}</span>` : ''}<span style="flex:1"></span><span class="mono small" title="вероятность попасть в оффер">${(x.p * 100).toFixed(1)}%</span></div>
+        <div class="ef" style="margin:3px 0">${effectChips(x.mod)}</div><div class="small muted">${esc(x.mod.desc)}</div>
+        ${previewText(x) ? `<div class="preview">→ ${esc(previewText(x))}</div>` : '<div class="small muted">→ без новых синергий</div>'}
+        <div class="small muted" style="margin-top:3px">вес: редкость ${x.base} × синергия ${x.syn.toFixed(1)}${x.a.score !== 1 ? ` (aff ${x.a.score})` : ''}</div>
+        <div class="row" style="margin-top:6px;gap:6px"><button class="btn primary sm" data-act="draft-take" data-id="${x.mod.id}">Взять</button><button class="btn sm" data-act="draft-ban" data-id="${x.mod.id}" ${d.banned.length >= (dc.banTokens || 0) ? 'disabled' : ''}>Бан</button></div></div>`).join('')
+      : '<div class="empty" style="flex:1">нажми «Сгенерировать оффер»</div>';
+    const top = cands.list.slice(0, 12).map((x) => `<div class="pair" style="cursor:default"><div style="min-width:180px">${rarPill(x.mod.rarity)} <b>${esc(x.mod.name)}</b></div><div class="mono small" style="width:56px">${(x.p * 100).toFixed(1)}%</div><div class="small muted" style="flex:1">${esc(previewText(x)) || '—'}</div></div>`).join('');
+    return `<h2>Драфт: что предложит игра на этом уровне</h2>
+      <div class="card">
+        <div class="row">
+          <label class="f">Уровень<input type="number" min="1" max="${c.maxLevel}" value="${d.level}" data-draft-level style="width:64px"></label>
+          <div class="small">${rw.peak ? '<span class="tag" style="color:var(--warn)">★ пик — редкость на ступень выше</span>' : ''}${!cands.smart ? '<span class="tag">первый оффер — без умных весов</span>' : '<span class="tag" style="color:var(--accent2)">умный драфт</span>'} <span class="muted">веса редкости: ${D.rarities.map((r) => `<span style="color:${D.rarityColors[r]}">${rw.weights[r] || 0}</span>`).join(' / ')} · кандидатов ${cands.list.length}</span></div>
+          <span style="flex:1"></span>
+          <button class="btn primary" data-act="draft-gen">Сгенерировать оффер</button><button class="btn sm" data-act="draft-reset">Сброс (ур. 1)</button>
+        </div>
+        <div class="offers">${offerCards}</div>
+        <div class="row" style="margin-top:8px"><span class="small muted">Бан-жетоны: ${d.banned.length}/${dc.banTokens || 0}</span>${d.banned.map((id) => `<span class="tag" style="color:var(--bad)">${esc(M(id)?.name || id)} <a data-act="draft-unban" data-id="${id}" style="cursor:pointer">✕</a></span>`).join('')}</div>
+        <details style="margin-top:8px"><summary class="small muted" style="cursor:pointer">Топ-12 самых вероятных кандидатов</summary><div style="margin-top:6px">${top}</div></details>
+      </div>`;
+  }
 
   R.meta = () => {
     const mt = D.meta; const cost = (c) => Object.entries(c || {}).map(([k, v]) => `${v} ${esc(mt.currencies.find((x) => x.id === k)?.name || k)}`).join(', ') || 'бесплатно';
@@ -544,6 +634,11 @@
       'md-json': () => { const m = MD(id); jsonEditor(`Модуль: ${m.name}`, m, (v) => { if (!v.id || !v.name || !v.slot) return 'нужны id, name, slot'; if (!D.moduleSlots[v.slot]) return 'неизвестный слот ' + v.slot; if (v.id !== m.id && MD(v.id)) return 'id занят'; for (const ef of v.effects || []) { if (ef.delivery && !DL(ef.delivery)) return 'неизвестная доставка ' + ef.delivery; if (ef.payload && !P(ef.payload)) return 'неизвестная нагрузка ' + ef.payload; } Object.keys(m).forEach((k) => delete m[k]); Object.assign(m, v); }, { onDelete: () => { D.modules = D.modules.filter((x) => x !== m); }, hint: 'slot: core|barrel|frame · effects как у модов' }); },
       'md-add': () => jsonEditor('Новый модуль', { id: 'new_module', name: 'Новый модуль', slot: 'core', rarity: 'uncommon', power: 3, desc: '', stats: {}, effects: [{ trigger: 'on_hit', every: 2, payload: 'burn' }], weapon: {} }, (v) => { if (MD(v.id)) return 'id занят'; (D.modules = D.modules || []).push(v); }),
       'build-clear': () => { UI.builder.passives = []; UI.builder.actives = []; UI.builder.ult = null; render(); },
+      'draft-gen': () => { const build = builderBuild(); const res = computeBuild(build); const cands = draftCandidates(build, res, UI.draft.level, UI.draft.banned); UI.draft.offer = drawOffer(cands.list, D.config.offersPerLevel).map((x) => x.mod.id); render(); },
+      'draft-take': () => { const m = M(id); const b = UI.builder; if (m.type === 'passive') { const p = b.passives.find((x) => x.id === id); if (p) p.stacks = (p.stacks || 1) + 1; else addMod(id); } else addMod(id); UI.draft.picks++; UI.draft.level = Math.min(D.config.maxLevel, UI.draft.level + 1); UI.draft.offer = []; render(); },
+      'draft-ban': () => { if (UI.draft.banned.length < (D.config.draft?.banTokens || 0) && !UI.draft.banned.includes(id)) UI.draft.banned.push(id); UI.draft.offer = UI.draft.offer.filter((x) => x !== id); render(); },
+      'draft-unban': () => { UI.draft.banned = UI.draft.banned.filter((x) => x !== id); render(); },
+      'draft-reset': () => { UI.draft = { level: 1, offer: [], banned: [], picks: 0 }; render(); },
       'build-save': () => { builds.push({ name: UI.builder.name.trim() || `Билд ${builds.length + 1}`, build: clone(builderBuild()) }); saveBuilds(); UI.builder.name = ''; render(); },
       'build-load': () => { const sb = builds[+t.dataset.i]; const b = UI.builder; b.main = sb.build.main; b.offhand = sb.build.offhand; b.passives = []; b.actives = []; b.ult = null; b.modules = {}; for (const id of sb.build.modules || []) { const md = MD(id); if (!md) continue; const w = (W(b.main)?.moduleSlots || []).includes(md.slot) ? b.main : b.offhand; if (w) b.modules[w + ':' + md.slot] = id; } for (const x of sb.build.mods) { const m = M(x.id); if (!m) continue; if (m.type === 'passive') b.passives.push({ id: x.id, stacks: x.stacks || 1 }); else addMod(x.id); } b.name = sb.name; render(); },
       'build-del': () => { builds.splice(+t.dataset.i, 1); saveBuilds(); render(); },
@@ -567,6 +662,7 @@
     else if (t.dataset.lib !== undefined) { UI.lib[t.dataset.lib] = t.value; render(); }
     else if (t.dataset.syn !== undefined) { UI.syn[t.dataset.syn] = t.value; render(); }
     else if (t.dataset.bsel) { UI.builder[t.dataset.bsel] = t.value; if (t.dataset.bsel === 'main' && W(t.value)?.hands !== '1h') UI.builder.offhand = ''; render(); }
+    else if (t.dataset.draftLevel !== undefined) { UI.draft.level = Math.max(1, +t.value || 1); UI.draft.offer = []; render(); }
     else if (t.dataset.msel) { UI.builder.modules = UI.builder.modules || {}; UI.builder.modules[t.dataset.msel] = t.value; render(); }
     else if (t.dataset.stack !== undefined) { const p = UI.builder.passives.find((x) => x.id === t.dataset.stack); if (p) p.stacks = Math.max(1, +t.value || 1); render(); }
     else if (t.dataset.bname !== undefined) UI.builder.name = t.value;
