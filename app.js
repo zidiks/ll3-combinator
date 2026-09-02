@@ -223,6 +223,37 @@
     return out;
   }
 
+  // ---------------- RANGE: профиль дальности ----------------
+  function rangeProfile(w, st = {}) {
+    const mult = 1 + (st.rangePct || 0);
+    const max = Math.max(0.5, (w.range || 0) * mult);
+    const opt = Math.min(max, Math.max(0, (w.rangeOpt ?? w.range ?? 0) * mult * (1 + (st.rangeOptPct || 0))));
+    const min = Math.max(0, Math.min(opt, (w.rangeMin || 0) + (st.rangeMinAdd || 0)));
+    const falloff = Math.min(1, Math.max(0, (w.falloff ?? 1) + (st.falloffAdd || 0)));
+    const closeMult = Math.min(1, Math.max(0, (w.closeMult ?? 1) + (st.closeMultAdd || 0)));
+    const cls = (D.rangeClasses || []).find((c) => max <= c.max)?.name || 'дальняя';
+    return { min, opt, max, falloff, closeMult, cls, melee: w.projSpeed === 0 };
+  }
+  function rangeMult(p, d) {
+    if (d > p.max) return 0;
+    if (d < p.min) return p.closeMult;
+    if (d <= p.opt) return 1;
+    return 1 - (1 - p.falloff) * ((d - p.opt) / Math.max(0.001, p.max - p.opt));
+  }
+  // полоса профиля: красный (штраф в упор) / зелёный (оптимум) / жёлтый→серый (спад) / тёмный (вне захвата)
+  function rangeStrip(p, opts = {}) {
+    const axis = D.config.rangeAxisMax || 60; const W_ = 600, H = 14; const x = (m) => Math.min(W_, m / axis * W_);
+    const segs = [];
+    if (p.min > 0) segs.push(`<rect x="0" y="0" width="${x(p.min)}" height="${H}" fill="#ff5d5d" opacity="${0.35 + 0.5 * (1 - p.closeMult)}"><title>в упор: урон ×${p.closeMult}</title></rect>`);
+    segs.push(`<rect x="${x(p.min)}" y="0" width="${Math.max(2, x(p.opt) - x(p.min))}" height="${H}" fill="#3fbf5f"><title>оптимум ${p.min.toFixed(1)}–${p.opt.toFixed(1)} м: 100%</title></rect>`);
+    if (p.max > p.opt) segs.push(`<defs><linearGradient id="g${opts.id || 'x'}"><stop offset="0" stop-color="#ffe14d"/><stop offset="1" stop-color="#3a3f47"/></linearGradient></defs><rect x="${x(p.opt)}" y="0" width="${x(p.max) - x(p.opt)}" height="${H}" fill="url(#g${opts.id || 'x'})"><title>спад до ×${p.falloff} на ${p.max.toFixed(1)} м</title></rect>`);
+    segs.push(`<rect x="${x(p.max)}" y="0" width="${W_ - x(p.max)}" height="${H}" fill="#14171c"><title>вне захвата автонаводки</title></rect>`);
+    if (opts.base) { segs.push(`<rect x="${x(opts.base.max)}" y="0" width="1.5" height="${H}" fill="#fff" opacity="0.6"><title>база: ${opts.base.max} м</title></rect>`); }
+    if (opts.dist != null) segs.push(`<rect x="${x(opts.dist) - 1}" y="-3" width="2" height="${H + 6}" fill="#5fd8ff"/>`);
+    const ticks = [0, 10, 20, 30, 40, 50, 60].filter((t) => t <= axis).map((t) => `<text x="${x(t)}" y="${H + 10}" font-size="8" fill="#8a93a0" text-anchor="middle">${t}</text>`).join('');
+    return `<svg viewBox="-2 -3 ${W_ + 4} ${H + 16}" class="rstrip" preserveAspectRatio="none">${segs.join('')}${ticks}</svg>`;
+  }
+
   // ---------------- DRAFT: правила выдачи модов ----------------
   function rarityWeightsAt(level) {
     const c = D.config; const dc = c.draft || {};
@@ -337,7 +368,8 @@
       <h2>Цикл катки</h2><div class="card"><div class="tl">${D.meta.runLoop.map((p) => `<div class="ph"><span class="t">${esc(p.phase)}</span><span class="m">${esc(p.minutes)} мин</span><div class="small">${esc(p.text)}</div></div>`).join('')}</div></div>`;
   };
 
-  const WFIELDS = [['dmg', 'Урон', 1], ['aps', 'Атак/с', 0.1], ['projectiles', 'Снарядов', 1], ['range', 'Дальность', 1], ['projSpeed', 'Скор. снаряда', 1], ['crit', 'Крит', 0.01], ['critMult', 'Множ. крита', 0.1], ['mag', 'Магазин', 1], ['reload', 'Перезарядка', 0.1], ['mobility', 'Мобильность', 0.05]];
+  const WFIELDS = [['dmg', 'Урон', 1], ['aps', 'Атак/с', 0.1], ['projectiles', 'Снарядов', 1], ['projSpeed', 'Скор. снаряда', 1], ['crit', 'Крит', 0.01], ['critMult', 'Множ. крита', 0.1], ['mag', 'Магазин', 1], ['reload', 'Перезарядка', 0.1], ['mobility', 'Мобильность', 0.05]];
+  const RFIELDS = [['rangeMin', 'Мин. дист., м', 0.5], ['rangeOpt', 'Оптимум, м', 0.5], ['range', 'Макс. захват, м', 0.5], ['falloff', 'Урон на макс.', 0.05], ['closeMult', 'Урон в упор', 0.05]];
   R.weapons = () => {
     const maxDps = Math.max(...D.weapons.map((w) => derived(w).dps));
     const rows = D.weapons.map((w) => { const d = derived(w); return `<tr><td><b>${esc(w.name)}</b><div class="small muted">${esc(w.archetype)}</div></td><td>${esc(handsName[w.hands])}</td><td><span class="tag wt">${esc(D.weaponKinds[w.kind]?.noun || w.kind)}</span></td><td class="num">${fmt(d.dph, 0)}</td><td class="num">${fmt(d.hitsPerSec, 1)}</td><td class="num">${Math.round(d.critF * 100 - 100)}%</td><td class="num">${Math.round(d.uptime * 100)}%</td><td class="num"><b>${fmt(d.dps, 0)}</b><div class="bar" style="width:90px"><i style="width:${d.dps / maxDps * 100}%"></i></div></td><td class="num">${fmt(d.ttk, 1)} с</td><td class="num">${fmt(d.ttkElite, 0)} с</td><td>${d.obstacleRisk}</td></tr>`; }).join('');
@@ -345,12 +377,18 @@
       <div class="head"><span class="name">${esc(w.name)}</span><span class="tag">${esc(handsName[w.hands])}</span><span class="spacer"></span><button class="btn sm" data-act="w-json" data-id="${w.id}">JSON</button></div>
       <div class="row" style="gap:8px;margin:4px 0"><label class="f">Базовая доставка<select data-wkind="${w.id}">${Object.entries(D.weaponKinds).map(([k, v]) => `<option value="${k}" ${w.kind === k ? 'selected' : ''}>${esc(v.noun)}</option>`).join('')}</select></label><div>${wtChips(w.tags)}</div></div>
       <div class="row" style="gap:6px 10px;margin:8px 0">${WFIELDS.map(([k, l, step]) => `<label class="f">${l}<input type="number" step="${step}" value="${w[k] ?? 0}" data-wfield="${k}" data-id="${w.id}"></label>`).join('')}</div>
+      <div class="bh">Дальность · ${esc(rangeProfile(w).cls)}${w.projSpeed === 0 ? ' · игнорирует преграды' : ''}</div>
+      <div class="row" style="gap:6px 10px;margin:4px 0">${RFIELDS.map(([k, l, step]) => `<label class="f">${l}<input type="number" step="${step}" value="${w[k] ?? 0}" data-wfield="${k}" data-id="${w.id}"></label>`).join('')}</div>
+      ${rangeStrip(rangeProfile(w), { id: w.id })}
       <div class="kv"><b>DPS</b><span><b>${fmt(d.dps, 0)}</b> · попаданий/с ${fmt(d.hitsPerSec, 1)} · крит ×${fmt(d.critF, 2)} · аптайм ${Math.round(d.uptime * 100)}%</span><b>TTK</b><span>${fmt(d.ttk, 1)} с / элитник ${fmt(d.ttkElite, 0)} с</span><b>Вариации</b><span class="small">${Object.entries(D.weaponVariants[w.kind] || {}).map(([k, v]) => `<div><span class="tag dl">${k === '_' ? 'любая' : esc(DL(k)?.noun || k)}</span> ${esc(v)}</div>`).join('')}</span></div>
       <label class="f" style="margin-top:6px">Фишка<input value="${esc(w.gimmick || '')}" data-wtext="gimmick" data-id="${w.id}"></label>
       <label class="f" style="margin-top:6px">Заметки<textarea rows="2" data-wtext="notes" data-id="${w.id}">${esc(w.notes || '')}</textarea></label></div>`; }).join('');
     return `<div class="row"><h1 style="margin:0">Оружие</h1><span style="flex:1"></span><button class="btn primary" data-act="w-add">+ Оружие</button></div>
       <div class="tablewrap" style="margin:10px 0 16px"><table><thead><tr><th>Оружие</th><th>Руки</th><th>Доставка</th><th class="num">Урон/выстр.</th><th class="num">Попад./с</th><th class="num">Крит</th><th class="num">Аптайм</th><th class="num">DPS</th><th class="num">TTK</th><th class="num">TTK элит</th><th>Преграды</th></tr></thead><tbody>${rows}</tbody></table></div>
-      <div class="grid cols-2">${cards}</div>`;
+      <h2>Дистанции работы</h2>
+      <div class="card"><div class="small muted" style="margin-bottom:6px"><span class="tag" style="color:#ff5d5d">штраф в упор</span> <span class="tag" style="color:#3fbf5f">оптимум 100%</span> <span class="tag" style="color:#ffe14d">спад урона</span> <span class="tag">вне захвата автонаводки</span> · дистанция — единственное, чем игрок управляет при автонаводке: ближний бой игнорирует преграды, но работает в упор; лук и винтовка штрафуются в упор — клинок и щит контрят их сближением.</div>
+        ${D.weapons.map((w) => { const p = rangeProfile(w); return `<div class="rrow"><div class="rname"><b>${esc(w.name)}</b><div class="small muted">${p.min ? `${p.min}–` : ''}${p.opt} м опт · до ${p.max} м · ${esc(p.cls)}</div></div>${rangeStrip(p, { id: 'all_' + w.id })}</div>`; }).join('')}</div>
+      <div class="grid cols-2" style="margin-top:14px">${cards}</div>`;
   };
 
   R.mods = () => {
@@ -514,6 +552,10 @@
       <div class="col">${buildHtml}</div>
       <div class="col">
         <div class="card"><div class="row"><h3 style="margin:0">Итог</h3><span style="flex:1"></span><span class="wow">★ ${res.wow}</span><span class="tag">сила ${res.power}</span><span class="tag">DPS ${fmt(res.base?.dps, 0)}</span><span class="tag">${fmt(res.totalHits, 1)} попад./с</span></div>${warn}
+          ${(() => { const p = rangeProfile(res.main, res.stats); const p0 = rangeProfile(res.main); const dist = Math.min(D.config.rangeAxisMax || 60, UI.builder.dist ?? p.opt); const m = rangeMult(p, dist); const off = res.off ? rangeProfile(res.off, res.stats) : null;
+            return `<h3>Дальность · ${esc(p.cls)}</h3>${rangeStrip(p, { id: 'b', base: p0, dist })}
+            <div class="row" style="gap:8px;margin-top:4px"><input type="range" min="0" max="${D.config.rangeAxisMax || 60}" step="0.5" value="${dist}" data-dist style="flex:1"><span class="mono small" style="width:190px">${dist} м → урон ×${m.toFixed(2)} · DPS ${fmt((res.base?.dps || 0) * m, 0)}</span></div>
+            <div class="small muted">опт ${p.min ? p.min.toFixed(1) + '–' : ''}${p.opt.toFixed(1)} м · захват ${p.max.toFixed(1)} м${p.max !== p0.max || p.opt !== p0.opt || p.min !== p0.min ? ` (база ${p0.min ? p0.min + '–' : ''}${p0.opt}/${p0.max})` : ''} · спад ×${p.falloff.toFixed(2)}${p.min ? ` · в упор ×${p.closeMult.toFixed(2)}` : ''}${off ? ` · щит: ${off.max.toFixed(1)} м` : ''}</div>`; })()}
           <h3>Статусы на целях</h3>${statusList}
           <h3>Реакции (${res.reactions.length})</h3>${rxList}
           ${selfs ? `<h3>Утилити</h3><div>${selfs}</div>` : ''}</div>
@@ -575,7 +617,9 @@
       }
     }
     return { version: D.version, elements: D.elements, payloads: D.payloads, deliveries: D.deliveries, weaponKinds: D.weaponKinds, weaponVariants: D.weaponVariants, vfxPrimitives: D.vfxPrimitives, reactions: D.reactions, composites,
-      weapons: D.weapons.map((w) => ({ id: w.id, name: w.name, kind: w.kind, hands: w.hands, dmg: w.dmg, aps: w.aps, projectiles: w.projectiles, range: w.range, projSpeed: w.projSpeed, crit: w.crit, critMult: w.critMult, mag: w.mag, reload: w.reload, tags: w.tags })),
+      weapons: D.weapons.map((w) => ({ id: w.id, name: w.name, kind: w.kind, hands: w.hands, dmg: w.dmg, aps: w.aps, projectiles: w.projectiles, projSpeed: w.projSpeed, crit: w.crit, critMult: w.critMult, mag: w.mag, reload: w.reload, tags: w.tags, moduleSlots: w.moduleSlots || [],
+        range: { min: w.rangeMin || 0, optimal: w.rangeOpt ?? w.range, max: w.range, falloffMult: w.falloff ?? 1, closeMult: w.closeMult ?? 1, ignoresObstacles: w.projSpeed === 0 } })),
+      rangeStats: ['rangePct', 'rangeOptPct', 'rangeMinAdd', 'falloffAdd', 'closeMultAdd'],
       mods: D.mods.map((m) => ({ id: m.id, name: m.name, type: m.type, rarity: m.rarity, cooldown: m.cooldown, charge: m.charge, maxStacks: m.maxStacks, stats: m.stats || {}, effects: m.effects || [], weapon: m.weapon || {} })),
       moduleSlots: D.moduleSlots, modules: (D.modules || []).map((m) => ({ id: m.id, name: m.name, slot: m.slot, rarity: m.rarity, stats: m.stats || {}, effects: m.effects || [], weapon: m.weapon || {} })) };
   }
@@ -662,6 +706,7 @@
     else if (t.dataset.lib !== undefined) { UI.lib[t.dataset.lib] = t.value; render(); }
     else if (t.dataset.syn !== undefined) { UI.syn[t.dataset.syn] = t.value; render(); }
     else if (t.dataset.bsel) { UI.builder[t.dataset.bsel] = t.value; if (t.dataset.bsel === 'main' && W(t.value)?.hands !== '1h') UI.builder.offhand = ''; render(); }
+    else if (t.dataset.dist !== undefined) { UI.builder.dist = +t.value; render(); }
     else if (t.dataset.draftLevel !== undefined) { UI.draft.level = Math.max(1, +t.value || 1); UI.draft.offer = []; render(); }
     else if (t.dataset.msel) { UI.builder.modules = UI.builder.modules || {}; UI.builder.modules[t.dataset.msel] = t.value; render(); }
     else if (t.dataset.stack !== undefined) { const p = UI.builder.passives.find((x) => x.id === t.dataset.stack); if (p) p.stacks = Math.max(1, +t.value || 1); render(); }

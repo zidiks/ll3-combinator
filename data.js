@@ -11,6 +11,8 @@ window.DEFAULT_DATA = {
     maxLevel: 15, offersPerLevel: 3, activeSlots: 4, ultSlots: 1, passiveSlots: 8, ultMinLevel: 12,
     enemyHp: 600, eliteHp: 4000, bossHp: 60000,
     density: 4,                 // сколько врагов в среднем в АоЕ радиусом ~4 м (для оценки частоты)
+    // Дальность: до rangeMin — урон × closeMult; rangeMin..rangeOpt — 100%; rangeOpt..range — линейный спад до falloff; дальше автонаводка не захватывает цель
+    rangeAxisMax: 60,           // ось шкалы дистанций, м
     rarityByLevel: [
       { from: 1,  weights: { common: 70, uncommon: 30, rare: 0,  epic: 0,  legendary: 0 } },
       { from: 3,  weights: { common: 50, uncommon: 35, rare: 15, epic: 0,  legendary: 0 } },
@@ -172,6 +174,10 @@ window.DEFAULT_DATA = {
     FreezeShell: { unity: 'VFX_FreezeShell', attach: 'Target',      props: ['ColorA'], desc: 'ледяная корка' },
   },
 
+  // Пояснение: дистанция — единственное, чем игрок управляет при автонаводке. Ближний бой игнорирует преграды, но работает только в упор;
+  // винтовка и лук штрафуются в упор (closeMult) — щитовик/клинок контрит их сближением, дробовик — ловит на средней.
+  rangeClasses: [ { id: 'melee', name: 'упор', max: 4 }, { id: 'close', name: 'ближняя', max: 12 }, { id: 'mid', name: 'средняя', max: 30 }, { id: 'long', name: 'дальняя', max: 999 } ],
+
   weaponTagNames: {
     projectile: 'снаряд', melee: 'ближний бой', fast: 'быстрое', heavy: 'тяжёлое', long: 'дальнобойное', close: 'ближняя дистанция',
     spread: 'разброс', charge: 'зарядка', pierce: 'пробитие', ricochet: 'рикошет', thrown: 'метательное', multi: 'мульти-снаряд',
@@ -182,42 +188,42 @@ window.DEFAULT_DATA = {
   // ---------- Оружие. kind = базовая доставка. projSpeed 0 = ближний бой
   weapons: [
     { id: 'shuriken', name: 'Сюрикен', hands: '1h', kind: 'thrown', moduleSlots: ['core', 'barrel', 'frame'], archetype: 'Метательное / рикошет',
-      dmg: 18, aps: 2.2, projectiles: 1, range: 14, projSpeed: 30, crit: 0.10, critMult: 1.8, mag: 0, reload: 0, mobility: 1.0,
+      dmg: 18, aps: 2.2, projectiles: 1, rangeMin: 0, rangeOpt: 8, range: 14, falloff: 0.6, closeMult: 1.0, projSpeed: 30, crit: 0.10, critMult: 1.8, mag: 0, reload: 0, mobility: 1.0,
       tags: ['projectile', 'thrown', 'fast', 'ricochet', 'multi', 'mobile', 'silent'],
       gimmick: 'Возвращается в руку: цель ближе 6 м бьётся дважды. Базовый рикошет 1 отскок.',
       notes: 'Лучший носитель «за удар»-нагрузок: много попаданий, низкий урон.' },
     { id: 'shield', name: 'Щит', hands: 'off', kind: 'block', moduleSlots: ['core', 'frame'], archetype: 'Защита / контроль',
-      dmg: 25, aps: 1.0, projectiles: 1, range: 2.5, projSpeed: 0, crit: 0.0, critMult: 1.5, mag: 0, reload: 0, mobility: 0.9,
+      dmg: 25, aps: 1.0, projectiles: 1, rangeMin: 0, rangeOpt: 2.5, range: 2.5, falloff: 1.0, closeMult: 1.0, projSpeed: 0, crit: 0.0, critMult: 1.5, mag: 0, reload: 0, mobility: 0.9,
       tags: ['melee', 'defense', 'block', 'kinetic', 'stagger', 'close'],
       gimmick: 'Блок 60% спереди, снаряды противника разрушаются об щит. Удар щитом — отбрасывание.',
       notes: 'Контр-игра против автонаводки. Даёт триггер on_block.' },
     { id: 'bow', name: 'Боевой лук', hands: '2h', kind: 'charge', moduleSlots: ['core', 'barrel', 'frame'], archetype: 'Заряд / точность',
-      dmg: 110, aps: 0.8, projectiles: 1, range: 40, projSpeed: 60, crit: 0.20, critMult: 2.2, mag: 0, reload: 0, mobility: 0.85,
+      dmg: 110, aps: 0.8, projectiles: 1, rangeMin: 6, rangeOpt: 30, range: 40, falloff: 0.8, closeMult: 0.6, projSpeed: 60, crit: 0.20, critMult: 2.2, mag: 0, reload: 0, mobility: 0.85,
       tags: ['projectile', 'charge', 'pierce', 'precision', 'long', 'silent', 'burst'],
       gimmick: 'Зарядка 0.3–1.2 с: 45→140 урона, полный заряд пробивает 1 цель.',
       notes: 'Мало попаданий, каждое — событие: носитель взрывов, воронок, критов.' },
     { id: 'gun', name: 'Боевая пушка', hands: '2h', kind: 'spread', moduleSlots: ['core', 'barrel', 'frame'], archetype: 'Дробовик / бурст',
-      dmg: 12, aps: 1.1, projectiles: 8, range: 10, projSpeed: 45, crit: 0.05, critMult: 1.6, mag: 6, reload: 2.4, mobility: 0.9,
+      dmg: 12, aps: 1.1, projectiles: 8, rangeMin: 0, rangeOpt: 6, range: 10, falloff: 0.3, closeMult: 1.0, projSpeed: 45, crit: 0.05, critMult: 1.6, mag: 6, reload: 2.4, mobility: 0.9,
       tags: ['projectile', 'spread', 'burst', 'close', 'kinetic', 'stagger', 'magazine', 'multi'],
       gimmick: 'Барабан на 6. Каждая дробина — отдельный снаряд.',
       notes: '8 попаданий за выстрел → «за снаряд»-эффекты (рикошет, цепь, поджог) взлетают.' },
     { id: 'rifle', name: 'Винтовка', hands: '2h', kind: 'projectile', moduleSlots: ['core', 'barrel', 'frame'], archetype: 'Дальний бой / непрерывный',
-      dmg: 32, aps: 4.0, projectiles: 1, range: 55, projSpeed: 120, crit: 0.15, critMult: 2.0, mag: 30, reload: 1.8, mobility: 0.9,
+      dmg: 32, aps: 4.0, projectiles: 1, rangeMin: 8, rangeOpt: 45, range: 55, falloff: 0.85, closeMult: 0.7, projSpeed: 120, crit: 0.15, critMult: 2.0, mag: 30, reload: 1.8, mobility: 0.9,
       tags: ['projectile', 'long', 'sustained', 'precision', 'magazine', 'fast'],
       gimmick: 'Самая быстрая пуля — почти не ловит преграды.',
       notes: 'Стабильный поток попаданий на дистанции. Носитель «магазин/перезарядка».' },
     { id: 'blade', name: 'Клинок', hands: '1h', kind: 'melee_combo', moduleSlots: ['core', 'barrel', 'frame'], archetype: 'Ближний бой / комбо',
-      dmg: 28, aps: 3.0, projectiles: 1, range: 2.5, projSpeed: 0, crit: 0.12, critMult: 2.0, mag: 0, reload: 0, mobility: 1.1,
+      dmg: 28, aps: 3.0, projectiles: 1, rangeMin: 0, rangeOpt: 2.5, range: 2.5, falloff: 1.0, closeMult: 1.0, projSpeed: 0, crit: 0.12, critMult: 2.0, mag: 0, reload: 0, mobility: 1.1,
       tags: ['melee', 'fast', 'combo', 'mobile', 'close', 'silent'],
       gimmick: 'Комбо из 3, третий ×1.6. Игнорирует преграды.',
       notes: 'Быстрые удары в упор: кровотечение, фантомы, фланг.' },
     { id: 'pistol', name: 'Пистолет', hands: '1h', kind: 'projectile', moduleSlots: ['core', 'barrel', 'frame'], archetype: 'Универсал',
-      dmg: 20, aps: 5.0, projectiles: 1, range: 22, projSpeed: 90, crit: 0.10, critMult: 1.8, mag: 15, reload: 1.2, mobility: 1.05,
+      dmg: 20, aps: 5.0, projectiles: 1, rangeMin: 0, rangeOpt: 14, range: 22, falloff: 0.6, closeMult: 1.0, projSpeed: 90, crit: 0.10, critMult: 1.8, mag: 15, reload: 1.2, mobility: 1.05,
       tags: ['projectile', 'fast', 'sustained', 'magazine', 'mobile'],
       gimmick: 'Стрельба не снижает скорость бега.',
       notes: 'Стартовое. Одноручка + щит = самый безопасный лоадаут.' },
     { id: 'powerbat', name: 'Силовая бита', hands: '2h', kind: 'melee_arc', moduleSlots: ['core', 'barrel', 'frame'], archetype: 'Тяжёлое / АоЕ',
-      dmg: 90, aps: 0.9, projectiles: 1, range: 3.5, projSpeed: 0, crit: 0.08, critMult: 2.0, mag: 0, reload: 0, mobility: 0.85,
+      dmg: 90, aps: 0.9, projectiles: 1, rangeMin: 0, rangeOpt: 3.5, range: 3.5, falloff: 1.0, closeMult: 1.0, projSpeed: 0, crit: 0.08, critMult: 2.0, mag: 0, reload: 0, mobility: 0.85,
       tags: ['melee', 'heavy', 'aoe', 'kinetic', 'stagger', 'close'],
       gimmick: 'Дуга 120° бьёт всех. Заряженный замах отбивает снаряды.',
       notes: 'Каждое попадание задевает толпу: АоЕ-нагрузки и реакции срабатывают по многим.' },
@@ -346,6 +352,12 @@ window.DEFAULT_DATA = {
     { id: 'frame_stabilizer', name: 'Стабилизатор', slot: 'frame', rarity: 'uncommon', power: 3, desc: '+10% крита.', effects: [], stats: { critPct: 0.10 }, weapon: { bonus: { precision: 0.5 } } },
     { id: 'frame_mag', name: 'Расширенный магазин', slot: 'frame', rarity: 'uncommon', power: 3, desc: '−30% перезарядка.', effects: [], stats: { reloadPct: -0.30 }, weapon: { requires: ['magazine'] } },
     { id: 'frame_homing', name: 'Огибающий каркас', slot: 'frame', rarity: 'epic', power: 5, desc: 'Снаряд огибает преграду 1 раз.', effects: [{ trigger: 'passive', self: 'огибание преграды' }], weapon: { requires: ['projectile'], bonus: { thrown: 0.5, long: 0.4 } } },
+    // дальность: rangePct (макс+опт), rangeOptPct (только опт), rangeMinAdd (м, минус = ближе), falloffAdd (спад на максимуме), closeMultAdd (штраф в упор)
+    { id: 'frame_longbarrel', name: 'Удлинённый ствол', slot: 'frame', rarity: 'uncommon', power: 3, desc: '+25% дальности, спад на максимуме мягче.', effects: [], stats: { rangePct: 0.25, falloffAdd: 0.15 }, weapon: { requires: ['projectile'], bonus: { long: 0.5, precision: 0.3 } } },
+    { id: 'frame_compensator', name: 'Компенсатор', slot: 'frame', rarity: 'rare', power: 4, desc: 'Убирает штраф в упор: минимальная дистанция −8 м.', effects: [], stats: { rangeMinAdd: -8, closeMultAdd: 0.4 }, weapon: { requires: ['charge', 'long'], requiresAny: true, bonus: { long: 0.6, charge: 0.6 } } },
+    { id: 'barrel_choke', name: 'Чок', slot: 'barrel', rarity: 'rare', power: 4, desc: 'Разброс уже: +40% дальности и оптимума, −1 снаряд.', effects: [], stats: { rangePct: 0.4, projectilesAdd: -1 }, weapon: { requires: ['spread'] } },
+    { id: 'frame_scope', name: 'Прицельный модуль', slot: 'frame', rarity: 'epic', power: 5, desc: 'Оптимальная дистанция +30%, крит +5%, но −10% скорости атаки.', effects: [], stats: { rangeOptPct: 0.3, critPct: 0.05, aspdPct: -0.1 }, weapon: { requires: ['projectile'], bonus: { long: 0.5, precision: 0.5 } } },
+    { id: 'frame_reach', name: 'Телескопическая рукоять', slot: 'frame', rarity: 'uncommon', power: 3, desc: '+35% радиуса ближнего боя.', effects: [], stats: { rangePct: 0.35 }, weapon: { requires: ['melee'], bonus: { heavy: 0.4, aoe: 0.4 } } },
     { id: 'frame_reactive', name: 'Реактивная пластина', slot: 'frame', rarity: 'rare', power: 4, desc: 'Блок даёт щит 5% HP.', effects: [{ trigger: 'on_block', payload: 'shield', amount: 0.05 }], weapon: { requires: ['block'] } },
   ],
 
