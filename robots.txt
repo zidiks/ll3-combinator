@@ -1,0 +1,10 @@
+# Arsenal Designer — open game-design data. Crawling and AI use welcome.
+User-agent: *
+Allow: /
+
+# Machine-readable entry points
+# /llms.txt            — start here (AI agents)
+# /data.json           — canonical data
+# /docs/mechanics.md   — mechanics spec
+# /schema/data.schema.json
+Sitemap: https://ll3-combinator.vercel.app/sitemap.txt

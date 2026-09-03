@@ -1,0 +1,353 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ll3-combinator.vercel.app/schema/data.schema.json",
+  "title": "Arsenal Designer data (v2)",
+  "description": "Канонические данные геймдизайна PvPvE-экстракшена с рогалик-драфтом: оружие, модификаторы, модули, предметы, композиционная система эффектов (нагрузки × доставки × носители), реакции статусов, правила драфта, мета-прогрессия. Семантика полей и формулы движка — в docs/mechanics.md.",
+  "type": "object",
+  "required": ["version", "updated", "config", "rarities", "rarityColors", "rarityNames", "elements", "triggers", "payloads", "deliveries", "weaponKinds", "weaponVariants", "compositeOverrides", "reactions", "vfxPrimitives", "rangeClasses", "weaponTagNames", "weapons", "mods", "moduleSlots", "modules", "items", "meta"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 2, "description": "Версия формата данных. UI принимает только 2." },
+    "updated": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "Дата последнего содержательного изменения данных (YYYY-MM-DD). Обновлять при каждой правке." },
+
+    "config": {
+      "type": "object",
+      "description": "Глобальные параметры катки и драфта.",
+      "required": ["maxLevel", "offersPerLevel", "activeSlots", "ultSlots", "passiveSlots", "itemSlots", "ultMinLevel", "enemyHp", "eliteHp", "bossHp", "density", "rarityByLevel", "artifactEssence", "draft"],
+      "properties": {
+        "maxLevel": { "type": "integer", "minimum": 1, "description": "Максимальный уровень в катке. 9 выборов (5 пассивок + 3 актива + 1 ульта) закрывают билд к 10-му; уровни 11–12 — стаки и добор." },
+        "offersPerLevel": { "type": "integer", "minimum": 1, "description": "Сколько модов показывается в оффере на каждом уровне." },
+        "passiveSlots": { "type": "integer", "minimum": 0 },
+        "activeSlots": { "type": "integer", "minimum": 0 },
+        "ultSlots": { "type": "integer", "minimum": 0 },
+        "itemSlots": { "type": "integer", "minimum": 0, "description": "Слотов под предметы с карты (items)." },
+        "ultMinLevel": { "type": "integer", "minimum": 1, "description": "С какого уровня в офферах появляются ульты." },
+        "ultForcedAtMin": { "type": "boolean", "description": "Если на ultMinLevel ульты ещё нет — оффер целиком из ульт." },
+        "enemyHp": { "type": "number", "description": "HP обычного врага; через него считаются убийств/с и TTK." },
+        "eliteHp": { "type": "number" },
+        "bossHp": { "type": "number" },
+        "density": { "type": "number", "description": "Сколько врагов в среднем попадает в АоЕ радиусом ~4 м. Справочно; движок использует densityTargets(radius) = min(8, round(1 + 0.6·radius))." },
+        "rangeAxisMax": { "type": "number", "description": "Длина оси шкалы дистанций в UI, м." },
+        "rarityByLevel": {
+          "type": "array",
+          "description": "Веса редкости в оффере по уровням. Берётся строка с максимальным from ≤ level. Должен быть отсортирован по from.",
+          "items": {
+            "type": "object",
+            "required": ["from", "weights"],
+            "properties": {
+              "from": { "type": "integer", "minimum": 1 },
+              "weights": { "type": "object", "additionalProperties": { "type": "number", "minimum": 0 }, "description": "Ключи — id редкостей. Относительные веса, не проценты." }
+            }
+          }
+        },
+        "artifactEssence": { "type": "object", "additionalProperties": { "type": "number" }, "description": "Сколько эссенции даёт артефакт каждой редкости, если унести его в мету вместо реролла." },
+        "draft": {
+          "type": "object",
+          "description": "Правила выдачи модов в катке (умный драфт). См. mechanics.md §8.",
+          "properties": {
+            "peakLevels": { "type": "array", "items": { "type": "integer" }, "description": "«Большой оффер»: на этих уровнях веса редкости сдвигаются на peakShift ступеней вверх." },
+            "peakShift": { "type": "integer", "minimum": 1 },
+            "wReaction": { "type": "number", "description": "Прибавка к весу за каждую новую реакцию, которую даст мод текущему билду." },
+            "wComposite": { "type": "number", "description": "Прибавка за каждый новый именованный композит (канал)." },
+            "wAffinity": { "type": "number", "description": "Множитель на (affinity − 1) — насколько мод подходит оружию сверх нормы." },
+            "banTokens": { "type": "integer", "minimum": 0, "description": "Сколько бан-жетонов доступно за катку (подбираются на карте)." },
+            "firstOfferRandom": { "type": "boolean", "description": "Первый оффер в катке без умных весов." }
+          }
+        }
+      }
+    },
+
+    "rarities": { "type": "array", "items": { "type": "string" }, "description": "Порядок редкостей от низшей к высшей. Индекс = ранг." },
+    "rarityColors": { "type": "object", "additionalProperties": { "$ref": "#/$defs/color" } },
+    "rarityNames": { "type": "object", "additionalProperties": { "type": "string" } },
+
+    "elements": {
+      "type": "object",
+      "description": "Элементы (стихии). Ключ — id. Обязателен элемент none.",
+      "required": ["none"],
+      "additionalProperties": { "type": "object", "required": ["name", "color"], "properties": { "name": { "type": "string" }, "color": { "$ref": "#/$defs/color" } } }
+    },
+
+    "triggers": {
+      "type": "object",
+      "description": "Словарь триггеров: id → человекочитаемое «когда срабатывает». Эффекты ссылаются на ключи.",
+      "additionalProperties": { "type": "string" }
+    },
+
+    "payloads": {
+      "type": "object",
+      "description": "Нагрузки — что накладывается на цель (или на себя). Один payload = один статус.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["name", "element", "adj", "stem", "desc", "vfx"],
+        "properties": {
+          "name": { "type": "string" },
+          "element": { "type": "string", "description": "id из elements; даёт цвет статуса и VFX." },
+          "adj": { "type": "array", "minItems": 4, "maxItems": 4, "items": { "type": "string" }, "description": "Прилагательное в 4 формах: [м, ж, ср, мн]. Используется в авто-именах композитов." },
+          "stem": { "type": "string", "description": "Основа для сложного прилагательного из двух нагрузок: «огненно» + «-ледяная»." },
+          "desc": { "type": "string", "description": "Игровой эффект статуса (числа — черновые)." },
+          "self": { "type": "boolean", "description": "true — статус накладывается на владельца, а не на цель. Не участвует в авто-именах и композитах Unity." },
+          "vfx": { "type": "string", "description": "id из vfxPrimitives — аура статуса." }
+        }
+      }
+    },
+
+    "deliveries": {
+      "type": "object",
+      "description": "Доставки — как эффект доходит до целей. Существительное с родом; дают имя каналу.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["noun", "gender", "vfx", "desc"],
+        "properties": {
+          "noun": { "type": "string" },
+          "gender": { "$ref": "#/$defs/gender" },
+          "vfx": { "type": "array", "items": { "type": "string" }, "description": "Последовательность VFX-примитивов; тонируется цветами нагрузок." },
+          "desc": { "type": "string", "description": "Шаблон с плейсхолдерами {targets} {count} {radius} {duration}." },
+          "targets": { "type": "number", "description": "Дефолт целей (chain, pulse)." },
+          "count": { "type": "number", "description": "Дефолт количества (ricochet, pierce, split, orbit)." },
+          "radius": { "type": "number", "description": "Дефолт радиуса, м (burst, zone, pull, wave, trap)." },
+          "duration": { "type": "number", "description": "Дефолт длительности, с." },
+          "continuation": { "type": "boolean", "description": "true — попадания этой доставки считаются попаданиями оружия: перезапускают on_hit-нагрузки и умножают totalHits (рикошет, пробитие, осколки)." },
+          "innate": { "type": "array", "items": { "type": "string" }, "description": "Нагрузки, встроенные в доставку (воронка всегда несёт метку)." }
+        }
+      }
+    },
+
+    "weaponKinds": {
+      "type": "object",
+      "description": "Носители — базовая доставка оружия (пуля, веер, стрела…). Базовый канал несёт все on_hit-нагрузки без доставки.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["noun", "gender", "vfx"],
+        "properties": { "noun": { "type": "string" }, "gender": { "$ref": "#/$defs/gender" }, "vfx": { "type": "array", "items": { "type": "string" } } }
+      }
+    },
+
+    "weaponVariants": {
+      "type": "object",
+      "description": "Как та же доставка звучит на разном носителе: weaponKind → { deliveryId | '_' (дефолт) → текст }.",
+      "additionalProperties": { "type": "object", "additionalProperties": { "type": "string" } }
+    },
+
+    "compositeOverrides": {
+      "type": "object",
+      "description": "Ручные имена композитов. Ключ: \"<delivery|weaponKind>+<payloadA>,<payloadB>\" — нагрузки по алфавиту, self-нагрузки не входят.",
+      "additionalProperties": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string" }, "desc": { "type": "string" } } }
+    },
+
+    "reactions": {
+      "type": "array",
+      "description": "Реакции: два статуса на одной цели → именованный эффект. Пара уникальна без учёта порядка.",
+      "items": {
+        "type": "object",
+        "required": ["a", "b", "name", "wow", "desc"],
+        "properties": {
+          "a": { "type": "string", "description": "id нагрузки" },
+          "b": { "type": "string", "description": "id нагрузки" },
+          "name": { "type": "string" },
+          "wow": { "type": "integer", "minimum": 1, "maximum": 5, "description": "Зрелищность 1–5; суммируется в wow билда и влияет на умный драфт через новые реакции." },
+          "desc": { "type": "string" },
+          "vfx": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+
+    "vfxPrimitives": {
+      "type": "object",
+      "description": "Библиотека VFX-примитивов. Один примитив = один Unity VFX Graph subgraph с экспонированными свойствами; композиты собираются из них в рантайме.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["unity", "attach", "props"],
+        "properties": {
+          "unity": { "type": "string", "description": "Имя subgraph/asset в Unity." },
+          "attach": { "type": "string", "description": "Точка привязки: Projectile, Muzzle, WeaponTip, Shield, HitPoint, Target→Target, Ground, Point, Player, Target, Self…" },
+          "props": { "type": "array", "items": { "type": "string" }, "description": "Экспонированные свойства (ColorA, ColorB, Radius, Duration…)." },
+          "desc": { "type": "string" }
+        }
+      }
+    },
+
+    "rangeClasses": {
+      "type": "array",
+      "description": "Классификация оружия по максимальной дальности: первый класс с max ≥ дальности.",
+      "items": { "type": "object", "required": ["id", "name", "max"], "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "max": { "type": "number" } } }
+    },
+
+    "weaponTagNames": { "type": "object", "additionalProperties": { "type": "string" }, "description": "Словарь тегов оружия: id → название. Теги связывают оружие и моды через weapon.requires/bonus/penalty." },
+
+    "weapons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "hands", "kind", "dmg", "aps", "projectiles", "range", "projSpeed", "crit", "critMult", "mag", "reload", "tags"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string" },
+          "hands": { "enum": ["1h", "2h", "off"], "description": "1h — одноручное (можно щит в левую), 2h — двуручное, off — левая рука." },
+          "kind": { "type": "string", "description": "id из weaponKinds — базовая доставка." },
+          "moduleSlots": { "type": "array", "items": { "type": "string" }, "description": "Какие слоты модулей есть у оружия (ключи moduleSlots)." },
+          "archetype": { "type": "string" },
+          "dmg": { "type": "number", "description": "Урон одного снаряда/удара." },
+          "aps": { "type": "number", "description": "Атак в секунду." },
+          "projectiles": { "type": "integer", "minimum": 1, "description": "Снарядов за атаку (дробь = 8)." },
+          "rangeMin": { "type": "number", "description": "До этой дистанции урон × closeMult (штраф в упор)." },
+          "rangeOpt": { "type": "number", "description": "До этой дистанции 100% урона." },
+          "range": { "type": "number", "description": "Максимальная дальность захвата автонаводки. На ней урон = falloff." },
+          "falloff": { "type": "number", "minimum": 0, "maximum": 1, "description": "Множитель урона на максимальной дальности; между rangeOpt и range — линейный спад." },
+          "closeMult": { "type": "number", "minimum": 0, "maximum": 1 },
+          "projSpeed": { "type": "number", "description": "Скорость снаряда, м/с. 0 = ближний бой (не блокируется препятствиями). ≥100 низкий риск препятствий, ≥55 средний, иначе высокий." },
+          "crit": { "type": "number", "minimum": 0, "maximum": 1 },
+          "critMult": { "type": "number" },
+          "mag": { "type": "integer", "minimum": 0, "description": "Магазин. 0 — без перезарядки." },
+          "reload": { "type": "number", "description": "Перезарядка, с." },
+          "mobility": { "type": "number", "description": "Множитель скорости движения с оружием (справочно)." },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "gimmick": { "type": "string", "description": "Уникальная фишка оружия (текст)." },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+
+    "mods": {
+      "type": "array",
+      "description": "Модификаторы — то, что драфтится в катке.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "rarity", "maxStacks", "power", "desc", "effects"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string" },
+          "type": { "enum": ["passive", "active", "ultimate"] },
+          "rarity": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" }, "description": "Свободные теги для фильтров UI (stat, crit, delivery, upgrade, aoe…)." },
+          "maxStacks": { "type": "integer", "minimum": 1, "description": "Сколько раз можно взять. Статы умножаются на стаки." },
+          "power": { "type": "number", "description": "Условная сила для бюджета билда (сумма по билду)." },
+          "desc": { "type": "string" },
+          "cooldown": { "type": "number", "description": "Для активов: КД, с. Уменьшается статом cdrPct." },
+          "charge": { "type": "string", "description": "Для ульт: условие заряда (текст)." },
+          "stats": { "$ref": "#/$defs/stats" },
+          "effects": { "type": "array", "items": { "$ref": "#/$defs/effect" } },
+          "weapon": { "$ref": "#/$defs/weaponRule" }
+        }
+      }
+    },
+
+    "moduleSlots": { "type": "object", "additionalProperties": { "type": "string" }, "description": "Слоты модулей: id → название (core = ядро: статус на попадание, barrel = излучатель: доставка, frame = каркас: статы)." },
+
+    "modules": {
+      "type": "array",
+      "description": "Модули оружия — мета-слой, ставятся до катки. В расчёте билда участвуют как моды с 1 стаком.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "slot", "rarity", "power", "desc", "effects"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string" },
+          "slot": { "type": "string" },
+          "rarity": { "type": "string" },
+          "power": { "type": "number" },
+          "desc": { "type": "string" },
+          "stats": { "$ref": "#/$defs/stats" },
+          "effects": { "type": "array", "items": { "$ref": "#/$defs/effect" } },
+          "weapon": { "$ref": "#/$defs/weaponRule" }
+        }
+      }
+    },
+
+    "items": {
+      "type": "array",
+      "description": "Предметы с карты: 1 слот, ограниченные заряды, триггер on_use.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "cat", "rarity", "uses", "power", "desc", "effects"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "type": "string" },
+          "cat": { "type": "string", "description": "Категория: боевой, PvP, выживание, информация, экономика." },
+          "rarity": { "type": "string" },
+          "uses": { "type": "integer", "minimum": 1 },
+          "power": { "type": "number" },
+          "desc": { "type": "string" },
+          "effects": { "type": "array", "items": { "$ref": "#/$defs/effect" } }
+        }
+      }
+    },
+
+    "meta": {
+      "type": "object",
+      "description": "Мета-прогрессия между катками.",
+      "required": ["currencies", "principles", "buildings", "weaponTiers", "runLoop"],
+      "properties": {
+        "currencies": { "type": "array", "items": { "type": "object", "required": ["id", "name"], "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "source": { "type": "string" }, "sink": { "type": "string" } } } },
+        "principles": { "type": "array", "items": { "type": "string" }, "description": "Дизайн-принципы меты (текст)." },
+        "buildings": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["id", "name", "levels"],
+            "properties": {
+              "id": { "type": "string" }, "name": { "type": "string" }, "desc": { "type": "string" },
+              "levels": { "type": "array", "items": { "type": "object", "properties": { "cost": { "type": "object", "additionalProperties": { "type": "number" }, "description": "currencyId → количество" }, "unlock": { "type": "string" } } } }
+            }
+          }
+        },
+        "weaponTiers": { "type": "array", "items": { "type": "object", "required": ["tier"], "properties": { "tier": { "type": "integer" }, "cost": { "type": "object", "additionalProperties": { "type": "number" } }, "bonus": { "type": "string" } } } },
+        "runLoop": { "type": "array", "items": { "type": "object", "properties": { "phase": { "type": "string" }, "minutes": { "type": "string" }, "text": { "type": "string" } } } }
+      }
+    }
+  },
+
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Стабильный машинный id (snake_case). Считать каноническим во всех проектах." },
+    "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+    "gender": { "enum": ["m", "f", "n", "pl"], "description": "Род существительного: мужской, женский, средний, множественное число. Индекс в payload.adj: m=0, f=1, n=2, pl=3." },
+    "stats": {
+      "type": "object",
+      "description": "Плоские статы. Pct — доли (0.08 = +8%), Add — абсолютные прибавки. Суммируются по билду с учётом стаков. Движок использует: dmgPct, aspdPct, projectilesAdd, critPct, critMultAdd, reloadPct, cdrPct, rangePct, rangeOptPct, rangeMinAdd, falloffAdd, closeMultAdd. Остальные (hpPct, speedPct, drPct, xpPct, projSpeedPct, aoeDmgPct) — декларативные.",
+      "additionalProperties": { "type": "number" }
+    },
+    "weaponRule": {
+      "type": "object",
+      "description": "Совместимость с оружием по тегам. affinity = 1 + Σ bonus[совпавшие теги] + Σ penalty[совпавшие теги], минимум 0.1. requires не выполнены → мод недоступен.",
+      "properties": {
+        "requires": { "type": "array", "items": { "type": "string" }, "description": "Обязательные теги лоадаута (все, либо любой при requiresAny)." },
+        "requiresAny": { "type": "boolean" },
+        "bonus": { "type": "object", "additionalProperties": { "type": "number" } },
+        "penalty": { "type": "object", "additionalProperties": { "type": "number" }, "description": "Отрицательные числа." }
+      }
+    },
+    "effect": {
+      "type": "object",
+      "description": "Атом системы. Либо { upgrade }, либо { trigger, delivery?, payload?, ... }. Полная семантика — mechanics.md §4.",
+      "properties": {
+        "trigger": { "type": "string", "description": "Ключ из triggers. Обязателен, если нет upgrade." },
+        "delivery": { "type": "string", "description": "id из deliveries. Без доставки on_hit-нагрузка идёт в базовый канал оружия, остальные триггеры — в прямой канал." },
+        "payload": { "type": "string", "description": "id из payloads — что накладывается." },
+        "inherits": { "type": "boolean", "description": "Канал этой доставки несёт все базовые on_hit-нагрузки билда (поджог + молния = огненная молния)." },
+        "every": { "type": "integer", "minimum": 1, "description": "Срабатывает каждое N-е попадание/убийство (частота ÷ N)." },
+        "everySec": { "type": "number", "description": "Для periodic: период, с (дефолт 5)." },
+        "chance": { "type": "number", "exclusiveMinimum": 0, "maximum": 1, "description": "Шанс срабатывания (дефолт 1)." },
+        "condition": { "type": "string", "description": "id нагрузки: срабатывает только по цели с этим статусом. Частота × 0.6 (on_kill × 0.7)." },
+        "targets": { "type": "number", "description": "Переопределяет deliveries[].targets." },
+        "count": { "type": "number", "description": "Переопределяет deliveries[].count." },
+        "radius": { "type": "number", "description": "Переопределяет deliveries[].radius, м." },
+        "duration": { "type": "number", "description": "Переопределяет deliveries[].duration, с." },
+        "dmg": { "type": "number", "description": "Урон доставки в долях от удара оружия (1.5 = 150%). Для continuation-доставок min(1, dmg) входит в extraHits." },
+        "stacks": { "type": "integer", "description": "Сколько стаков нагрузки накладывается за раз (справочно/в описание)." },
+        "amount": { "type": "number", "description": "Доля для self-нагрузок (0.2 = 20%)." },
+        "self": { "type": "string", "description": "Текст эффекта на владельца без нагрузки (рывок, бафф скорости). Попадает в список selfs." },
+        "ultWindow": { "type": "number", "description": "Эффект действует только в окне ульты N секунд." },
+        "repeatSec": { "type": "number", "description": "Повтор доставки каждые N с в течение duration." },
+        "upgrade": {
+          "type": "object",
+          "description": "Апгрейд вместо эффекта: прибавки к параметрам доставки, inheritAll, множитель частоты триггера.",
+          "properties": {
+            "delivery": { "type": "string" },
+            "targets": { "type": "number" }, "count": { "type": "number" }, "radius": { "type": "number" },
+            "inheritAll": { "type": "boolean", "description": "Все доставки билда наследуют базовые нагрузки." },
+            "trigger": { "type": "string" }, "mult": { "type": "number", "description": "Множитель частоты для trigger (пока поддержан on_activate)." }
+          }
+        }
+      }
+    }
+  }
+}

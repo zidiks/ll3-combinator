@@ -42,7 +42,7 @@
   const DL = (id) => D.deliveries[id];
   const EL = (id) => D.elements[id] || D.elements.none;
   const elColor = (id) => EL(id).color;
-  const payloadColor = (pid) => elColor(P(pid)?.element || 'none');
+  const payloadColor = (pid) => ArsenalEngine.payloadColor(D, pid);
   const rarityRank = (r) => D.rarities.indexOf(r);
   const typeName = { passive: 'Пассивка', active: 'Актив', ultimate: 'Ульта' };
   const typeOrder = ['passive', 'active', 'ultimate'];
@@ -80,18 +80,8 @@
   }
 
   // ---------------- naming ----------------
-  function compositeName(nounDef, payloadIds, deliveryId) {
-    const st = payloadIds.filter((p) => P(p) && !P(p).self);
-    const named = st.length ? st : payloadIds.filter((p) => P(p));
-    const key = `${deliveryId}+${[...named].sort().join(',')}`;
-    const ov = D.compositeOverrides[key];
-    if (ov && ov.name) return { name: ov.name, key, override: ov };
-    const g = GI[nounDef.gender] ?? 0;
-    if (!named.length) return { name: cap(nounDef.noun), key };
-    if (named.length === 1) return { name: cap(P(named[0]).adj[g]) + ' ' + nounDef.noun, key };
-    if (named.length === 2) return { name: cap(P(named[0]).stem + '-' + P(named[1]).adj[g]) + ' ' + nounDef.noun, key };
-    return { name: 'Мульти-элементн' + ['ый', 'ая', 'ое', 'ые'][g] + ' ' + nounDef.noun, key };
-  }
+  // авто-имена композитов живут в engine.js (общий код с scripts/build.mjs)
+  const compositeName = (nounDef, payloadIds, deliveryId) => ArsenalEngine.compositeName(D, nounDef, payloadIds, deliveryId);
   const fill = (tpl, o) => tpl.replace(/\{(\w+)\}/g, (_, k) => o[k] ?? '?');
   const densityTargets = (r) => Math.min(8, Math.round(1 + (r || 0) * 0.6));
 
@@ -621,26 +611,7 @@
       <h2>Артефакт: реролл или эвакуация</h2><div class="card"><table><thead><tr><th>Редкость</th><th>Эссенция</th><th>Реролл даёт</th><th>Модов в пуле</th></tr></thead><tbody>${D.rarities.map((r) => `<tr><td>${rarPill(r)}</td><td class="num">${D.config.artifactEssence[r] ?? '—'}</td><td>случайный мод этой редкости, совместимый с оружием</td><td class="num">${D.mods.filter((m) => m.rarity === r).length}</td></tr>`).join('')}</tbody></table></div>`;
   };
 
-  function unityExport() {
-    const nonSelf = Object.keys(D.payloads).filter((p) => !P(p).self);
-    const composites = [];
-    const nouns = [...Object.entries(D.weaponKinds).map(([id, k]) => ({ id, def: k })), ...Object.entries(D.deliveries).map(([id, d]) => ({ id, def: d }))];
-    for (const n of nouns) {
-      composites.push({ id: n.id, delivery: n.id, payloads: [], name: cap(n.def.noun), vfx: n.def.vfx.map((p) => ({ prim: p, colors: ['#c9d1d9'] })) });
-      for (const a of nonSelf) {
-        composites.push({ id: `${n.id}+${a}`, delivery: n.id, payloads: [a], name: compositeName(n.def, [a], n.id).name, vfx: [...n.def.vfx.map((p) => ({ prim: p, colors: [payloadColor(a)] })), { prim: P(a).vfx, colors: [payloadColor(a)] }] });
-        for (const b of nonSelf) if (a < b) composites.push({ id: `${n.id}+${a},${b}`, delivery: n.id, payloads: [a, b], name: compositeName(n.def, [a, b], n.id).name, vfx: [...n.def.vfx.map((p) => ({ prim: p, colors: [payloadColor(a), payloadColor(b)] })), { prim: P(a).vfx, colors: [payloadColor(a)] }, { prim: P(b).vfx, colors: [payloadColor(b)] }] });
-      }
-    }
-    return { version: D.version, elements: D.elements, payloads: D.payloads, deliveries: D.deliveries, weaponKinds: D.weaponKinds, weaponVariants: D.weaponVariants, vfxPrimitives: D.vfxPrimitives, reactions: D.reactions, composites,
-      weapons: D.weapons.map((w) => ({ id: w.id, name: w.name, kind: w.kind, hands: w.hands, dmg: w.dmg, aps: w.aps, projectiles: w.projectiles, projSpeed: w.projSpeed, crit: w.crit, critMult: w.critMult, mag: w.mag, reload: w.reload, tags: w.tags, moduleSlots: w.moduleSlots || [],
-        range: { min: w.rangeMin || 0, optimal: w.rangeOpt ?? w.range, max: w.range, falloffMult: w.falloff ?? 1, closeMult: w.closeMult ?? 1, ignoresObstacles: w.projSpeed === 0 } })),
-      rangeStats: ['rangePct', 'rangeOptPct', 'rangeMinAdd', 'falloffAdd', 'closeMultAdd'],
-      slots: { passive: D.config.passiveSlots, active: D.config.activeSlots, ultimate: D.config.ultSlots, item: D.config.itemSlots || 1, ultMinLevel: D.config.ultMinLevel, maxLevel: D.config.maxLevel },
-      items: (D.items || []).map((it) => ({ id: it.id, name: it.name, cat: it.cat, rarity: it.rarity, uses: it.uses || 1, effects: it.effects || [] })),
-      mods: D.mods.map((m) => ({ id: m.id, name: m.name, type: m.type, rarity: m.rarity, cooldown: m.cooldown, charge: m.charge, maxStacks: m.maxStacks, stats: m.stats || {}, effects: m.effects || [], weapon: m.weapon || {} })),
-      moduleSlots: D.moduleSlots, modules: (D.modules || []).map((m) => ({ id: m.id, name: m.name, slot: m.slot, rarity: m.rarity, stats: m.stats || {}, effects: m.effects || [], weapon: m.weapon || {} })) };
-  }
+  const unityExport = () => ArsenalEngine.unityExport(D);
   R.data = () => {
     const c = D.config;
     return `<h1>Данные и настройки</h1>
@@ -652,7 +623,7 @@
         <div class="card"><h3>Экспорт / импорт</h3>
           <div class="row"><button class="btn primary" data-act="export">Скачать JSON</button><button class="btn primary" data-act="export-unity">Экспорт для Unity</button><label class="btn">Импорт<input type="file" accept="application/json" data-import hidden></label><button class="btn danger" data-act="reset">Сбросить</button></div>
           <p class="small muted">Экспорт для Unity: примитивы VFX, нагрузки, доставки, реакции и все композиты (доставка × 1–2 статуса) с готовыми именами и цветами. Один VFX Graph subgraph на примитив (<span class="mono">vfxPrimitives[*].unity</span>) с экспонированными свойствами — композит собирается из них в рантайме.</p>
-          <div id="exportArea"></div>
+          <p class="small muted">Правки в этом UI живут только в localStorage браузера. Чтобы они попали на сайт и к ИИ-агентам: «Скачать JSON» → заменить <span class="mono">data.json</span> в репо → <span class="mono">npm run build</span> → commit. Спека: <a href="docs/mechanics.md">docs/mechanics.md</a>, для агентов: <a href="llms.txt">llms.txt</a>.</p><div id="exportArea"></div>
           <h3>Словари</h3><div class="row">${[['payloads', 'Нагрузки'], ['deliveries', 'Доставки'], ['weaponKinds', 'Типы оружия'], ['weaponVariants', 'Вариации оружия'], ['vfxPrimitives', 'VFX-примитивы'], ['compositeOverrides', 'Ручные имена'], ['elements', 'Элементы'], ['triggers', 'Триггеры']].map(([k, l]) => `<button class="btn sm" data-act="dict-json" data-k="${k}">${l}</button>`).join('')}</div>
           <h3>VFX-примитивы</h3><div class="tablewrap"><table><thead><tr><th>Примитив</th><th>Unity</th><th>Attach</th><th>Свойства</th><th>Описание</th></tr></thead><tbody>${Object.entries(D.vfxPrimitives).map(([k, v]) => `<tr><td><b>${esc(k)}</b></td><td class="mono small">${esc(v.unity)}</td><td class="small">${esc(v.attach)}</td><td class="small mono">${(v.props || []).join(', ')}</td><td class="small muted">${esc(v.desc)}</td></tr>`).join('')}</tbody></table></div>
         </div></div>`;
@@ -713,7 +684,7 @@
       'rbl-del': () => { D.config.rarityByLevel.splice(+t.dataset.i, 1); save(); render(); },
       'export': () => dlFile(JSON.stringify(D, null, 2), 'arsenal-data.json'),
       'export-unity': () => { const j = JSON.stringify(unityExport(), null, 2); dlFile(j, 'arsenal-unity.json'); const ea = $('#exportArea'); if (ea) ea.innerHTML = `<textarea class="json" readonly style="margin-top:8px">${esc(j)}</textarea>`; },
-      'reset': () => { if (confirm('Сбросить все данные к дефолту из data.js?')) { D = clone(window.DEFAULT_DATA); save(); render(); } },
+      'reset': () => { if (confirm('Сбросить все данные к дефолту из data.json?')) { D = clone(window.DEFAULT_DATA); save(); render(); } },
     };
     if (H[act]) { e.preventDefault(); H[act](); }
   });

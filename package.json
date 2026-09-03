@@ -1,0 +1,12 @@
+{
+  "name": "ll3-combinator",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Arsenal Designer — open game-design data for a PvPvE extraction roguelite (weapons, mods, composable effects, status reactions, draft rules)",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "validate": "node scripts/build.mjs --check",
+    "dev": "npx --yes serve -l 8765 ."
+  },
+  "license": "MIT"
+}

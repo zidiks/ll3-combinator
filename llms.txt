@@ -1,0 +1,26 @@
+# Arsenal Designer (ll3-combinator)
+
+> Open game-design database for a PvPvE extraction roguelite with a draft system: weapons, mods, weapon modules, map items, a composable effect system (payload × delivery × weapon carrier → auto-named composite effects), status reactions, draft rules and meta-progression. Content is in Russian; ids are English snake_case and canonical. The root HTML page is a JS-only UI — read the files below instead.
+
+Открытая база геймдизайна PvPvE-экстракшена с рогалик-драфтом. Главная страница — UI на JS, для машинного чтения используй файлы ниже. Все id (`burn`, `chain`, `pistol`, `core_plasma`…) канонические: не переименовывать и не переводить.
+
+## Start here
+
+- [data.json](https://ll3-combinator.vercel.app/data.json): canonical data, single source of truth (weapons, mods, modules, items, payloads, deliveries, weapon kinds, reactions, VFX primitives, draft config, meta). ~110 KB, CORS enabled.
+- [docs/mechanics.md](https://ll3-combinator.vercel.app/docs/mechanics.md): rules and formulas — effect format, build engine (hits/s, channels, statuses, reactions, auto-naming), range profile, draft weighting, what is NOT modelled.
+- [docs/catalog.md](https://ll3-combinator.vercel.app/docs/catalog.md): all content as Markdown tables, generated from data.json.
+- [schema/data.schema.json](https://ll3-combinator.vercel.app/schema/data.schema.json): JSON Schema (draft 2020-12) with a description of every field.
+
+## Derived
+
+- [unity.json](https://ll3-combinator.vercel.app/unity.json): engine export — dictionaries plus every composite (delivery × 0–2 statuses) with ready names and colors, weapon range profiles, slots.
+- [engine.js](https://ll3-combinator.vercel.app/engine.js): pure functions shared by UI and build script (composite naming, Unity export); works in Node and browser.
+- [CHANGELOG.md](https://ll3-combinator.vercel.app/CHANGELOG.md): what changed and when. `data.json.updated` holds the date of the last data change.
+
+## Source
+
+- [GitHub: zidiks/ll3-combinator](https://github.com/zidiks/ll3-combinator): repository; `app.js` holds the UI and the build-evaluation engine (`computeBuild`).
+
+## Optional
+
+- [README.md](https://ll3-combinator.vercel.app/README.md): project overview, how to run and edit.
