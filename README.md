@@ -40,7 +40,7 @@ npm run dev
 1. **Руками / ИИ**: править `data.json`, затем `npm run build`. Скрипт проверит ссылочную целостность (id нагрузок, доставок, триггеров, тегов, слотов, роды, сортировки) и перегенерирует `unity.json` и `docs/catalog.md`. Обновить `updated` и `CHANGELOG.md`, закоммитить.
 2. **Через UI**: правки живут в `localStorage` браузера и **на сайт не попадают**. «Данные → Скачать JSON» → заменить `data.json` → `npm run build` → commit.
 
-`npm run validate` — только проверка. Vercel запускает `node scripts/build.mjs` при деплое, битые данные не задеплоятся.
+`npm run validate` — только проверка. Сборка также собирает деплой-папку `public/` (в git не входит): Vercel запускает `node scripts/build.mjs` при деплое и публикует именно её, битые данные не задеплоятся.
 
 ## Идея системы
 
@@ -89,6 +89,6 @@ docs/catalog.md        каталог (генерируется)
 unity.json             экспорт (генерируется)
 engine.js              общие функции: имена композитов, Unity-экспорт
 app.js                 UI + движок оценки билда (computeBuild)
-scripts/build.mjs      валидация + генерация
+scripts/build.mjs      валидация + генерация + сборка public/ для Vercel
 llms.txt robots.txt sitemap.txt
 ```

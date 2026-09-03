@@ -2,11 +2,64 @@
   "cleanUrls": true,
   "buildCommand": "node scripts/build.mjs",
   "installCommand": "",
+  "outputDirectory": "public",
   "headers": [
-    { "source": "/(.*)", "headers": [ { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" } ] },
-    { "source": "/(data|unity).json", "headers": [ { "key": "Access-Control-Allow-Origin", "value": "*" }, { "key": "Content-Type", "value": "application/json; charset=utf-8" } ] },
-    { "source": "/schema/(.*).json", "headers": [ { "key": "Access-Control-Allow-Origin", "value": "*" }, { "key": "Content-Type", "value": "application/schema+json; charset=utf-8" } ] },
-    { "source": "/docs/(.*).md", "headers": [ { "key": "Access-Control-Allow-Origin", "value": "*" }, { "key": "Content-Type", "value": "text/markdown; charset=utf-8" } ] },
-    { "source": "/(llms|robots|sitemap).txt", "headers": [ { "key": "Content-Type", "value": "text/plain; charset=utf-8" } ] }
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(data|unity).json",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/schema/(.*).json",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/schema+json; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/docs/(.*).md",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Content-Type",
+          "value": "text/markdown; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/(llms|robots|sitemap).txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        }
+      ]
+    }
   ]
 }

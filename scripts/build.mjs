@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // ============================================================
 //  build.mjs — валидирует data.json и генерирует производные файлы.
-//    node scripts/build.mjs          → проверка + unity.json + docs/catalog.md
+//    node scripts/build.mjs          → проверка + unity.json + docs/catalog.md + public/ (деплой-папка для Vercel)
 //    node scripts/build.mjs --check  → только проверка (exit 1 при ошибках)
 //  Без зависимостей. Запускается Vercel при деплое (см. vercel.json).
 // ============================================================
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync, mkdirSync, cpSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -266,3 +266,12 @@ md.push('### Тиры оружия', '', table(['Тир', 'Стоимость', 
   '### Петля катки', '', table(['Фаза', 'Минуты', 'Что происходит'], D.meta.runLoop.map((r) => [r.phase, r.minutes, r.text])), '');
 writeFileSync(join(ROOT, 'docs', 'catalog.md'), md.join('\n') + '\n');
 console.log('docs/catalog.md written');
+
+// ---------------- public/ (output directory для Vercel) ----------------
+// Vercel без фреймворка деплоит только папку public. Складываем туда всё, что должно быть на сайте.
+const PUB = join(ROOT, "public");
+if (existsSync(PUB)) rmSync(PUB, { recursive: true, force: true });
+mkdirSync(PUB);
+const DEPLOY = ["index.html", "app.js", "engine.js", "styles.css", "data.json", "unity.json", "llms.txt", "robots.txt", "sitemap.txt", "README.md", "CHANGELOG.md", "docs", "schema"];
+for (const f of DEPLOY) cpSync(join(ROOT, f), join(PUB, f), { recursive: true });
+console.log("public/ assembled: " + DEPLOY.join(", "));

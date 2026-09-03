@@ -2,5 +2,6 @@
 node_modules/
 .vercel/
 .idea/
+public/
 .DS_Store
 Thumbs.db
