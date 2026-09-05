@@ -1,7 +1,7 @@
 {
   "$schema": "./schema/data.schema.json",
   "version": 2,
-  "updated": "2026-09-03",
+  "updated": "2026-09-05",
   "config": {
     "maxLevel": 12,
     "offersPerLevel": 3,
@@ -108,6 +108,13 @@
     "rare": "Редкий",
     "epic": "Эпический",
     "legendary": "Легендарный"
+  },
+  "iconSet": {
+    "pack": "500 Free Skill Icons",
+    "note": "Иконки модификаторов. Поле icon у мода — имя файла без расширения.",
+    "web": "icons/{icon}.webp",
+    "unity": "Assets/500FreeSkillIcons/Icons/{icon}.png",
+    "size": 256
   },
   "elements": {
     "plasma": {
@@ -1354,6 +1361,7 @@
       "name": "Калибровка",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_383",
       "tags": [
         "stat"
       ],
@@ -1371,6 +1379,7 @@
       "name": "Разгон",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_276",
       "tags": [
         "stat"
       ],
@@ -1392,6 +1401,7 @@
       "name": "Уязвимость",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_461",
       "tags": [
         "stat",
         "crit"
@@ -1415,6 +1425,7 @@
       "name": "Усиленный каркас",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_309",
       "tags": [
         "stat"
       ],
@@ -1432,6 +1443,7 @@
       "name": "Сервоприводы",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_349",
       "tags": [
         "stat",
         "mobility"
@@ -1455,6 +1467,7 @@
       "name": "Быстрый затвор",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_307",
       "tags": [
         "stat"
       ],
@@ -1476,6 +1489,7 @@
       "name": "Удлинённый ствол",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_347",
       "tags": [
         "stat"
       ],
@@ -1500,6 +1514,7 @@
       "name": "Ускоритель",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_428",
       "tags": [
         "stat"
       ],
@@ -1525,6 +1540,7 @@
       "name": "Длинный замах",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_413",
       "tags": [
         "stat"
       ],
@@ -1549,6 +1565,7 @@
       "name": "Композит",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_458",
       "tags": [
         "stat"
       ],
@@ -1570,6 +1587,7 @@
       "name": "Нано-фильтр",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_337",
       "tags": [
         "sustain"
       ],
@@ -1596,6 +1614,7 @@
       "name": "Магнит",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_388",
       "tags": [
         "utility"
       ],
@@ -1613,6 +1632,7 @@
       "name": "Термоядро",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_316",
       "tags": [
         "onhit"
       ],
@@ -1641,6 +1661,7 @@
       "name": "Криокапсула",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_434",
       "tags": [
         "onhit"
       ],
@@ -1668,6 +1689,7 @@
       "name": "Статика",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_027",
       "tags": [
         "onhit"
       ],
@@ -1697,6 +1719,7 @@
       "name": "Ударная масса",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_441",
       "tags": [
         "onhit"
       ],
@@ -1723,6 +1746,7 @@
       "name": "Метка пустоты",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_318",
       "tags": [
         "onkill"
       ],
@@ -1750,6 +1774,7 @@
       "name": "Регенерация",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_235",
       "tags": [
         "sustain"
       ],
@@ -1774,6 +1799,7 @@
       "name": "Бронебойность",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_205",
       "tags": [
         "stat",
         "crit"
@@ -1797,6 +1823,7 @@
       "name": "Аварийный щит",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_026",
       "tags": [
         "defense"
       ],
@@ -1822,6 +1849,7 @@
       "name": "Ловкие руки",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_488",
       "tags": [
         "reload"
       ],
@@ -1851,6 +1879,7 @@
       "name": "Стеклянная пушка",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_172",
       "tags": [
         "stat"
       ],
@@ -1876,6 +1905,7 @@
       "name": "Инерция",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_341",
       "tags": [
         "positioning"
       ],
@@ -1903,6 +1933,7 @@
       "name": "Форсаж",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_442",
       "tags": [
         "stat"
       ],
@@ -1930,6 +1961,7 @@
       "name": "Фланг",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_416",
       "tags": [
         "positioning"
       ],
@@ -1954,6 +1986,7 @@
       "name": "Нейроускоритель",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_519",
       "tags": [
         "utility"
       ],
@@ -1971,6 +2004,7 @@
       "name": "Рикошет",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_510",
       "tags": [
         "delivery"
       ],
@@ -2002,6 +2036,7 @@
       "name": "Пробитие",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_350",
       "tags": [
         "delivery"
       ],
@@ -2032,6 +2067,7 @@
       "name": "Мультивыстрел",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_303",
       "tags": [
         "stat"
       ],
@@ -2061,6 +2097,7 @@
       "name": "Разрывные",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_044",
       "tags": [
         "delivery"
       ],
@@ -2094,6 +2131,7 @@
       "name": "Цепная молния",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_229",
       "tags": [
         "upgrade"
       ],
@@ -2120,6 +2158,7 @@
       "name": "Дробление",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_163",
       "tags": [
         "delivery",
         "crit"
@@ -2149,6 +2188,7 @@
       "name": "Пожар",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_197",
       "tags": [
         "delivery"
       ],
@@ -2177,6 +2217,7 @@
       "name": "Гравитация",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_427",
       "tags": [
         "delivery"
       ],
@@ -2209,6 +2250,7 @@
       "name": "Кровотечение",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_396",
       "tags": [
         "onhit"
       ],
@@ -2236,6 +2278,7 @@
       "name": "Вихрь",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_467",
       "tags": [
         "delivery"
       ],
@@ -2267,6 +2310,7 @@
       "name": "Ударная волна",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_469",
       "tags": [
         "delivery"
       ],
@@ -2297,6 +2341,7 @@
       "name": "Отражение",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_296",
       "tags": [
         "delivery",
         "pvp"
@@ -2326,6 +2371,7 @@
       "name": "Последний патрон",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_407",
       "tags": [
         "burst"
       ],
@@ -2352,6 +2398,7 @@
       "name": "Огибание",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_479",
       "tags": [
         "utility"
       ],
@@ -2379,6 +2426,7 @@
       "name": "Казнь",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_284",
       "tags": [
         "onhit"
       ],
@@ -2403,6 +2451,7 @@
       "name": "Кровавый крит",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_233",
       "tags": [
         "crit",
         "sustain"
@@ -2429,6 +2478,7 @@
       "name": "Кинетическая батарея",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_073",
       "tags": [
         "defense"
       ],
@@ -2454,6 +2504,7 @@
       "name": "Фрагментация",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_333",
       "tags": [
         "delivery"
       ],
@@ -2484,6 +2535,7 @@
       "name": "Грозовое ядро",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_230",
       "tags": [
         "delivery"
       ],
@@ -2512,6 +2564,7 @@
       "name": "Коллапс",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_162",
       "tags": [
         "delivery"
       ],
@@ -2541,6 +2594,7 @@
       "name": "Феникс",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_299",
       "tags": [
         "revive"
       ],
@@ -2568,6 +2622,7 @@
       "name": "Бесконечный магазин",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_093",
       "tags": [
         "crit"
       ],
@@ -2597,6 +2652,7 @@
       "name": "Адреналин",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_357",
       "tags": [
         "mobility"
       ],
@@ -2621,6 +2677,7 @@
       "name": "Крепость",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_390",
       "tags": [
         "positioning"
       ],
@@ -2649,6 +2706,7 @@
       "name": "Охотник",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_319",
       "tags": [
         "pvp"
       ],
@@ -2673,6 +2731,7 @@
       "name": "Оверклок",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_522",
       "tags": [
         "cooldown"
       ],
@@ -2690,6 +2749,7 @@
       "name": "Двойной след",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_468",
       "tags": [
         "delivery"
       ],
@@ -2719,6 +2779,7 @@
       "name": "Эхо",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_239",
       "tags": [
         "upgrade"
       ],
@@ -2740,6 +2801,7 @@
       "name": "Синтез",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_431",
       "tags": [
         "upgrade"
       ],
@@ -2765,6 +2827,7 @@
       "name": "Вечный рикошет",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_401",
       "tags": [
         "delivery"
       ],
@@ -2795,6 +2858,7 @@
       "name": "Отражённый",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_313",
       "tags": [
         "delivery",
         "pvp"
@@ -2818,6 +2882,7 @@
       "name": "Королевская метка",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_490",
       "tags": [
         "cooldown"
       ],
@@ -2838,6 +2903,7 @@
       "name": "Титан",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_367",
       "tags": [
         "defense"
       ],
@@ -2862,6 +2928,7 @@
       "name": "Рывок",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_440",
       "tags": [
         "mobility"
       ],
@@ -2887,6 +2954,7 @@
       "name": "Блинк",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_505",
       "tags": [
         "mobility"
       ],
@@ -2912,6 +2980,7 @@
       "name": "Плазменная граната",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_271",
       "tags": [
         "aoe"
       ],
@@ -2935,6 +3004,7 @@
       "name": "Криовзрыв",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_274",
       "tags": [
         "cc"
       ],
@@ -2963,6 +3033,7 @@
       "name": "Вольт-ловушка",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_126",
       "tags": [
         "trap"
       ],
@@ -2990,6 +3061,7 @@
       "name": "Приманка",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_312",
       "tags": [
         "pvp"
       ],
@@ -3016,6 +3088,7 @@
       "name": "Барьер",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_132",
       "tags": [
         "defense"
       ],
@@ -3043,6 +3116,7 @@
       "name": "Овердрайв",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_463",
       "tags": [
         "buff"
       ],
@@ -3067,6 +3141,7 @@
       "name": "Гарпун",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_290",
       "tags": [
         "mobility"
       ],
@@ -3093,6 +3168,7 @@
       "name": "Турель",
       "type": "active",
       "rarity": "epic",
+      "icon": "skill_369",
       "tags": [
         "summon"
       ],
@@ -3116,6 +3192,7 @@
       "name": "Дымовая завеса",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_047",
       "tags": [
         "pvp"
       ],
@@ -3143,6 +3220,7 @@
       "name": "Сейсмический удар",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_265",
       "tags": [
         "aoe"
       ],
@@ -3170,6 +3248,7 @@
       "name": "Нано-импульс",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_356",
       "tags": [
         "heal"
       ],
@@ -3191,6 +3270,7 @@
       "name": "Залп",
       "type": "active",
       "rarity": "epic",
+      "icon": "skill_397",
       "tags": [
         "burst"
       ],
@@ -3218,6 +3298,7 @@
       "name": "Орбитальный удар",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_214",
       "tags": [
         "aoe"
       ],
@@ -3245,6 +3326,7 @@
       "name": "Стазис-поле",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_111",
       "tags": [
         "cc"
       ],
@@ -3272,6 +3354,7 @@
       "name": "Громовержец",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_501",
       "tags": [
         "chain"
       ],
@@ -3301,6 +3384,7 @@
       "name": "Сингулярность",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_164",
       "tags": [
         "aoe"
       ],
@@ -3325,6 +3409,7 @@
       "name": "Джаггернаут",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_464",
       "tags": [
         "defense"
       ],
@@ -3355,6 +3440,7 @@
       "name": "Нова",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_224",
       "tags": [
         "heal"
       ],
@@ -3382,6 +3468,7 @@
       "name": "Протокол-призрак",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_435",
       "tags": [
         "pvp"
       ],

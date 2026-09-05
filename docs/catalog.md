@@ -1,6 +1,6 @@
 # Arsenal Designer — каталог контента
 
-> Сгенерировано из `data.json` (version 2, updated 2026-09-03) скриптом `scripts/build.mjs`. Не редактировать руками — править `data.json`.
+> Сгенерировано из `data.json` (version 2, updated 2026-09-05) скриптом `scripts/build.mjs`. Не редактировать руками — править `data.json`.
 > Как это всё работает: [docs/mechanics.md](mechanics.md). Схема: [schema/data.schema.json](../schema/data.schema.json).
 
 ## Конфиг катки
@@ -215,98 +215,98 @@
 
 ### Пассивки (59)
 
-| id | Название | Редкость | Описание | Стаки | Power | КД | Статы | Эффекты | Совместимость с оружием | Теги |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `dmg_up` | Калибровка | Обычный | +8% урона. | 5 | 2 |  | dmgPct +8% |  |  | stat |
-| `aspd_up` | Разгон | Обычный | +8% скорости атаки. | 5 | 2 |  | aspdPct +8% |  | бонус: fast +0.3 | stat |
-| `crit_up` | Уязвимость | Обычный | +5% шанс крита. | 5 | 2 |  | critPct +5% |  | бонус: precision +0.4, charge +0.3 | stat, crit |
-| `hp_up` | Усиленный каркас | Обычный | +12% макс. HP. | 5 | 2 |  | hpPct +12% |  |  | stat |
-| `speed_up` | Сервоприводы | Обычный | +6% скорости бега. | 4 | 2 |  | speedPct +6% |  | бонус: melee +0.4, mobile +0.3 | stat, mobility |
-| `reload_up` | Быстрый затвор | Обычный | −12% перезарядка. | 4 | 2 |  | reloadPct -12% |  | нужно: magazine | stat |
-| `range_up` | Удлинённый ствол | Обычный | +10% дальности. | 3 | 2 |  | rangePct +10% |  | нужно: projectile; бонус: long +0.3 | stat |
-| `proj_speed` | Ускоритель | Обычный | +15% скорости снаряда (реже разбивается о преграды). | 3 | 2 |  | projSpeedPct +15% |  | нужно: projectile; бонус: thrown +0.5, charge +0.4 | stat |
-| `melee_reach` | Длинный замах | Обычный | +20% радиуса ближнего боя. | 3 | 2 |  | rangePct +20% |  | нужно: melee; бонус: aoe +0.4 | stat |
-| `armor_up` | Композит | Обычный | +5% снижение урона. | 4 | 2 |  | drPct +5% |  | бонус: block +0.3 | stat |
-| `lifesteal_small` | Нано-фильтр | Обычный | 3% вампиризм. | 3 | 2 |  |  | `on_hit` → `heal` 3% | бонус: fast +0.3, multi +0.3 | sustain |
-| `pickup` | Магнит | Обычный | +30% радиус подбора, +10% опыта. | 2 | 1 |  | xpPct +10% |  |  | utility |
-| `burn_touch` | Термоядро | Необычный | Попадания поджигают. | 1 | 4 |  |  | `on_hit` → `burn` | бонус: fast +0.5, multi +0.6, spread +0.6; штраф: charge -0.3 | onhit |
-| `frost_touch` | Криокапсула | Необычный | Попадания накладывают обморожение. | 1 | 4 |  |  | `on_hit` → `chill` | бонус: fast +0.6, multi +0.5; штраф: heavy -0.3 | onhit |
-| `static_touch` | Статика | Необычный | Каждое 4-е попадание — молния в ближайшего (30 урона, разряд). | 1 | 4 |  |  | `on_hit` (каждое 4-е) → `chain` (targets 1, dmg 100%) + `shock` + наследует базовые нагрузки | бонус: fast +0.5, sustained +0.5 | onhit |
-| `heavy_impact` | Ударная масса | Необычный | Попадания отбрасывают, +10% урона по оглушённым. | 2 | 3 |  |  | `on_hit` → `knockback` | бонус: heavy +0.6, stagger +0.5, kinetic +0.5 | onhit |
-| `void_mark` | Метка пустоты | Необычный | Убийство помечает ближайшего врага в 5 м. | 1 | 3 |  |  | `on_kill` → `pulse` (targets 1, radius 5) + `mark` | бонус: precision +0.4, long +0.3 | onkill |
-| `nano_regen` | Регенерация | Необычный | Реген 1% HP/с вне боя. | 2 | 3 |  |  | `passive` → `heal` 1% | бонус: long +0.3 | sustain |
-| `crit_dmg` | Бронебойность | Необычный | +30% множитель крита. | 3 | 3 |  | critMultAdd +30% |  | бонус: precision +0.5, charge +0.5 | stat, crit |
-| `second_wind` | Аварийный щит | Необычный | Ниже 30% HP — щит 25% (раз в 40 с). | 1 | 4 |  |  | `on_low_hp` → `shield` 25% | бонус: melee +0.3, close +0.3 | defense |
-| `quick_hands` | Ловкие руки | Необычный | −25% перезарядка; после неё +15% скорости атаки 3 с. | 1 | 3 |  | reloadPct -25% | `on_reload` → себе: +15% скорости атаки 3 с | нужно: magazine; бонус: sustained +0.4 | reload |
-| `glass_cannon` | Стеклянная пушка | Необычный | +25% урона, −15% HP. | 2 | 3 |  | dmgPct +25%, hpPct -15% |  | бонус: long +0.4; штраф: melee -0.3 | stat |
-| `momentum` | Инерция | Необычный | +2% урона за метр пробега (макс +30%). | 1 | 3 |  |  | `passive` → себе: урон растёт от движения | бонус: melee +0.6, mobile +0.5; штраф: charge -0.4 | positioning |
-| `charge_speed` | Форсаж | Необычный | +30% скорость зарядки/замаха. | 2 | 3 |  | aspdPct +15% |  | нужен один из: charge, heavy; бонус: charge +0.8, heavy +0.6 | stat |
-| `backstab` | Фланг | Необычный | +25% урона по целям, которые атакуют не тебя. | 1 | 3 |  |  | `passive` → себе: фланговый бонус | бонус: melee +0.5, silent +0.5 | positioning |
-| `xp_up` | Нейроускоритель | Необычный | +15% опыта. | 2 | 2 |  | xpPct +15% |  |  | utility |
-| `ricochet` | Рикошет | Редкий | Снаряды отскакивают к ближайшей цели (−30% урона). | 2 | 5 |  |  | `on_hit` → `ricochet` (count 1, dmg 70%) + наследует базовые нагрузки | нужно: projectile; бонус: ricochet +1, multi +0.6, spread +0.5 | delivery |
-| `pierce` | Пробитие | Редкий | Снаряды пробивают +1 цель. | 2 | 5 |  |  | `on_hit` → `pierce` (count 1, dmg 100%) + наследует базовые нагрузки | нужно: projectile; бонус: pierce +0.8, long +0.5 | delivery |
-| `multishot` | Мультивыстрел | Редкий | +1 снаряд, −20% урона каждого. | 2 | 5 |  | projectilesAdd +1, dmgPct -20% |  | нужно: projectile; бонус: thrown +0.6, fast +0.4; штраф: spread -0.2 | stat |
-| `explosive` | Разрывные | Редкий | Попадания взрываются (2 м, 30% урона), взрыв несёт твои статусы. | 1 | 5 |  |  | `on_hit` → `burst` (radius 2, dmg 30%) + наследует базовые нагрузки | нужно: projectile; бонус: charge +0.7, precision +0.5; штраф: multi -0.2 | delivery |
-| `chain_lightning` | Цепная молния | Редкий | Все молнии перескакивают ещё на 3 цели. | 1 | 5 |  |  | апгрейд доставки `chain`: targets +3 | бонус: fast +0.4, sustained +0.4 | upgrade |
-| `shatter` | Дробление | Редкий | Крит по обмороженной цели — ледяной взрыв 4 м на 150%. | 1 | 5 |  |  | `on_crit` по цели с `chill` → `burst` (radius 4, dmg 150%) + `chill` | бонус: precision +0.5, heavy +0.6 | delivery, crit |
-| `ignite_spread` | Пожар | Редкий | Горящие враги при смерти взрываются огнём (3 м). | 1 | 5 |  |  | `on_kill` по цели с `burn` → `burst` (radius 3, dmg 50%) + `burn` | бонус: multi +0.4, aoe +0.4 | delivery |
-| `gravity_shots` | Гравитация | Редкий | Попадания создают воронку 3 м. | 1 | 5 |  |  | `on_hit` (каждое 3-е) → `pull` (radius 3, dmg 20%) + наследует базовые нагрузки | бонус: charge +0.6, heavy +0.7, aoe +0.6; штраф: fast -0.3 | delivery |
-| `bleed` | Кровотечение | Редкий | Удары ближнего боя вызывают кровотечение. | 1 | 5 |  |  | `on_hit` → `bleed` | нужно: melee; бонус: fast +0.6, combo +0.6 | onhit |
-| `whirlwind` | Вихрь | Редкий | Каждый 3-й удар — круговая волна 3 м со всеми статусами. | 1 | 5 |  |  | `on_hit` (каждое 3-е) → `wave` (radius 3, dmg 100%) + наследует базовые нагрузки | нужно: melee; бонус: combo +0.7, heavy +0.5 | delivery |
-| `shield_wave` | Ударная волна | Редкий | Удар щитом выпускает волну 6 м с отбрасыванием. | 1 | 5 |  |  | `on_hit` → `wave` (radius 6, dmg 60%) + `knockback` + наследует базовые нагрузки | нужно: block; бонус: block +1 | delivery |
-| `reflect` | Отражение | Редкий | Блок отражает снаряд в стрелка, снаряд несёт твои статусы. | 1 | 5 |  |  | `on_block` → `reflect` (dmg 100%) + наследует базовые нагрузки | нужно: block; бонус: block +1 | delivery, pvp |
-| `last_round` | Последний патрон | Редкий | Последний патрон в магазине ×3 урона. | 1 | 5 |  |  | `on_reload` → себе: последний патрон ×3 | нужно: magazine; бонус: burst +0.8 | burst |
-| `homing_plus` | Огибание | Редкий | Снаряд один раз огибает преграду. | 1 | 6 |  |  | `passive` → себе: огибание преграды | нужно: projectile; бонус: thrown +0.6, long +0.5 | utility |
-| `execute` | Казнь | Редкий | Цели ниже 15% HP умирают от любого попадания. | 1 | 5 |  |  | `on_hit` → `execute` | бонус: fast +0.5, multi +0.5 | onhit |
-| `vampiric_crit` | Кровавый крит | Редкий | Криты лечат на 8% урона. | 1 | 5 |  |  | `on_crit` → `heal` 8% | бонус: precision +0.5, charge +0.4 | crit, sustain |
-| `kinetic_battery` | Кинетическая батарея | Редкий | 30% полученного/заблокированного урона добавляется к следующей атаке (с отбрасыванием). | 1 | 5 |  |  | `on_block` → `knockback` + себе: копит урон в следующий удар | бонус: block +0.8, heavy +0.6 | defense |
-| `split_on_kill` | Фрагментация | Эпический | Убийство выпускает 3 осколка (40%) со статусами. | 1 | 7 |  |  | `on_kill` → `split` (count 3, dmg 40%) + наследует базовые нагрузки | нужно: projectile; бонус: multi +0.5, ricochet +0.5 | delivery |
-| `storm_core` | Грозовое ядро | Эпический | Каждые 5 с — разряд-волна 8 м. | 1 | 7 |  |  | `periodic` (раз в 5 с) → `wave` (radius 8, dmg 80%) + `shock` | бонус: melee +0.5, close +0.5 | delivery |
-| `black_hole_kill` | Коллапс | Эпический | Каждое 5-е убийство — мини-чёрная дыра 4 м на 2 с. | 1 | 7 |  |  | `on_kill` (каждое 5-е) → `pull` (radius 4, duration 2, dmg 200%) + наследует базовые нагрузки | бонус: aoe +0.5, multi +0.4 | delivery |
-| `phoenix` | Феникс | Эпический | Смерть → огненный взрыв 6 м и возрождение 30% HP. | 1 | 7 |  |  | `on_death` → `burst` (radius 6, dmg 500%) + `burn`<br>`on_death` → `heal` 30% |  | revive |
-| `infinite_crit` | Бесконечный магазин | Эпический | Криты не тратят патроны и не сбивают комбо. | 1 | 7 |  |  | `passive` → себе: криты бесплатны | нужен один из: magazine, combo; бонус: sustained +0.7, combo +0.6 | crit |
-| `adrenaline` | Адреналин | Эпический | Убийство: +5% скорости атаки и бега 4 с (×6). | 1 | 7 |  |  | `on_kill` → себе: ускорение (стак ×6) | бонус: fast +0.5, melee +0.4 | mobility |
-| `fortress` | Крепость | Эпический | Стоишь 1 с — +40% защиты, +20% урона. | 1 | 7 |  |  | `passive` → себе: бонус за неподвижность | бонус: long +0.7, block +0.5; штраф: mobile -0.4, melee -0.3 | positioning |
-| `hunter_mark` | Охотник | Эпический | Элитники и игроки постоянно помечены и видны сквозь стены. | 1 | 7 |  |  | `passive` → `mark` | бонус: long +0.6, precision +0.5 | pvp |
-| `overclock` | Оверклок | Эпический | Активные способности −30% кулдаун. | 1 | 7 |  | cdrPct +30% |  |  | cooldown |
-| `twin_blade` | Двойной след | Эпический | Каждый удар повторяется фантомом на 50%. | 1 | 7 |  |  | `on_hit` → `echo` (dmg 50%) + наследует базовые нагрузки | нужно: melee; бонус: fast +0.6, combo +0.6 | delivery |
-| `echo` | Эхо | Легендарный | Каждая активная способность срабатывает дважды. | 1 | 9 |  |  | триггер `on_activate` ×2 |  | upgrade |
-| `omni_element` | Синтез | Легендарный | Все доставки несут все твои статусы (даже те, что не наследуют). | 1 | 9 |  |  | все доставки наследуют базовые нагрузки (`inheritAll`) | бонус: fast +0.5, multi +0.5 | upgrade |
-| `infinite_ricochet` | Вечный рикошет | Легендарный | Рикошет до 5 целей без потери урона. | 1 | 9 |  |  | `on_hit` → `ricochet` (count 5, dmg 100%) + наследует базовые нагрузки | нужно: projectile; бонус: ricochet +1.2, multi +0.6 | delivery |
-| `mirror_image` | Отражённый | Легендарный | Клон повторяет атаки на 50% и перетягивает автонаводку. | 1 | 9 |  |  | `passive` → `summon` (duration 999, dmg 50%) + наследует базовые нагрузки |  | delivery, pvp |
-| `deathmark` | Королевская метка | Легендарный | Убийство помеченной цели сбрасывает все кулдауны. | 1 | 9 |  |  | `on_kill` по цели с `mark` → себе: сброс кулдаунов |  | cooldown |
-| `titan` | Титан | Легендарный | +50% HP, иммунитет к отбрасыванию, АоЕ +40%. | 1 | 9 |  | hpPct +50%, aoeDmgPct +40% |  | бонус: heavy +0.8, aoe +0.6, block +0.4 | defense |
+| Иконка | id | Название | Редкость | Описание | Стаки | Power | КД | Статы | Эффекты | Совместимость с оружием | Теги |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| <img src="../icons/skill_383.webp" width="40" height="40" alt="Калибровка"> `skill_383` | `dmg_up` | Калибровка | Обычный | +8% урона. | 5 | 2 |  | dmgPct +8% |  |  | stat |
+| <img src="../icons/skill_276.webp" width="40" height="40" alt="Разгон"> `skill_276` | `aspd_up` | Разгон | Обычный | +8% скорости атаки. | 5 | 2 |  | aspdPct +8% |  | бонус: fast +0.3 | stat |
+| <img src="../icons/skill_461.webp" width="40" height="40" alt="Уязвимость"> `skill_461` | `crit_up` | Уязвимость | Обычный | +5% шанс крита. | 5 | 2 |  | critPct +5% |  | бонус: precision +0.4, charge +0.3 | stat, crit |
+| <img src="../icons/skill_309.webp" width="40" height="40" alt="Усиленный каркас"> `skill_309` | `hp_up` | Усиленный каркас | Обычный | +12% макс. HP. | 5 | 2 |  | hpPct +12% |  |  | stat |
+| <img src="../icons/skill_349.webp" width="40" height="40" alt="Сервоприводы"> `skill_349` | `speed_up` | Сервоприводы | Обычный | +6% скорости бега. | 4 | 2 |  | speedPct +6% |  | бонус: melee +0.4, mobile +0.3 | stat, mobility |
+| <img src="../icons/skill_307.webp" width="40" height="40" alt="Быстрый затвор"> `skill_307` | `reload_up` | Быстрый затвор | Обычный | −12% перезарядка. | 4 | 2 |  | reloadPct -12% |  | нужно: magazine | stat |
+| <img src="../icons/skill_347.webp" width="40" height="40" alt="Удлинённый ствол"> `skill_347` | `range_up` | Удлинённый ствол | Обычный | +10% дальности. | 3 | 2 |  | rangePct +10% |  | нужно: projectile; бонус: long +0.3 | stat |
+| <img src="../icons/skill_428.webp" width="40" height="40" alt="Ускоритель"> `skill_428` | `proj_speed` | Ускоритель | Обычный | +15% скорости снаряда (реже разбивается о преграды). | 3 | 2 |  | projSpeedPct +15% |  | нужно: projectile; бонус: thrown +0.5, charge +0.4 | stat |
+| <img src="../icons/skill_413.webp" width="40" height="40" alt="Длинный замах"> `skill_413` | `melee_reach` | Длинный замах | Обычный | +20% радиуса ближнего боя. | 3 | 2 |  | rangePct +20% |  | нужно: melee; бонус: aoe +0.4 | stat |
+| <img src="../icons/skill_458.webp" width="40" height="40" alt="Композит"> `skill_458` | `armor_up` | Композит | Обычный | +5% снижение урона. | 4 | 2 |  | drPct +5% |  | бонус: block +0.3 | stat |
+| <img src="../icons/skill_337.webp" width="40" height="40" alt="Нано-фильтр"> `skill_337` | `lifesteal_small` | Нано-фильтр | Обычный | 3% вампиризм. | 3 | 2 |  |  | `on_hit` → `heal` 3% | бонус: fast +0.3, multi +0.3 | sustain |
+| <img src="../icons/skill_388.webp" width="40" height="40" alt="Магнит"> `skill_388` | `pickup` | Магнит | Обычный | +30% радиус подбора, +10% опыта. | 2 | 1 |  | xpPct +10% |  |  | utility |
+| <img src="../icons/skill_316.webp" width="40" height="40" alt="Термоядро"> `skill_316` | `burn_touch` | Термоядро | Необычный | Попадания поджигают. | 1 | 4 |  |  | `on_hit` → `burn` | бонус: fast +0.5, multi +0.6, spread +0.6; штраф: charge -0.3 | onhit |
+| <img src="../icons/skill_434.webp" width="40" height="40" alt="Криокапсула"> `skill_434` | `frost_touch` | Криокапсула | Необычный | Попадания накладывают обморожение. | 1 | 4 |  |  | `on_hit` → `chill` | бонус: fast +0.6, multi +0.5; штраф: heavy -0.3 | onhit |
+| <img src="../icons/skill_027.webp" width="40" height="40" alt="Статика"> `skill_027` | `static_touch` | Статика | Необычный | Каждое 4-е попадание — молния в ближайшего (30 урона, разряд). | 1 | 4 |  |  | `on_hit` (каждое 4-е) → `chain` (targets 1, dmg 100%) + `shock` + наследует базовые нагрузки | бонус: fast +0.5, sustained +0.5 | onhit |
+| <img src="../icons/skill_441.webp" width="40" height="40" alt="Ударная масса"> `skill_441` | `heavy_impact` | Ударная масса | Необычный | Попадания отбрасывают, +10% урона по оглушённым. | 2 | 3 |  |  | `on_hit` → `knockback` | бонус: heavy +0.6, stagger +0.5, kinetic +0.5 | onhit |
+| <img src="../icons/skill_318.webp" width="40" height="40" alt="Метка пустоты"> `skill_318` | `void_mark` | Метка пустоты | Необычный | Убийство помечает ближайшего врага в 5 м. | 1 | 3 |  |  | `on_kill` → `pulse` (targets 1, radius 5) + `mark` | бонус: precision +0.4, long +0.3 | onkill |
+| <img src="../icons/skill_235.webp" width="40" height="40" alt="Регенерация"> `skill_235` | `nano_regen` | Регенерация | Необычный | Реген 1% HP/с вне боя. | 2 | 3 |  |  | `passive` → `heal` 1% | бонус: long +0.3 | sustain |
+| <img src="../icons/skill_205.webp" width="40" height="40" alt="Бронебойность"> `skill_205` | `crit_dmg` | Бронебойность | Необычный | +30% множитель крита. | 3 | 3 |  | critMultAdd +30% |  | бонус: precision +0.5, charge +0.5 | stat, crit |
+| <img src="../icons/skill_026.webp" width="40" height="40" alt="Аварийный щит"> `skill_026` | `second_wind` | Аварийный щит | Необычный | Ниже 30% HP — щит 25% (раз в 40 с). | 1 | 4 |  |  | `on_low_hp` → `shield` 25% | бонус: melee +0.3, close +0.3 | defense |
+| <img src="../icons/skill_488.webp" width="40" height="40" alt="Ловкие руки"> `skill_488` | `quick_hands` | Ловкие руки | Необычный | −25% перезарядка; после неё +15% скорости атаки 3 с. | 1 | 3 |  | reloadPct -25% | `on_reload` → себе: +15% скорости атаки 3 с | нужно: magazine; бонус: sustained +0.4 | reload |
+| <img src="../icons/skill_172.webp" width="40" height="40" alt="Стеклянная пушка"> `skill_172` | `glass_cannon` | Стеклянная пушка | Необычный | +25% урона, −15% HP. | 2 | 3 |  | dmgPct +25%, hpPct -15% |  | бонус: long +0.4; штраф: melee -0.3 | stat |
+| <img src="../icons/skill_341.webp" width="40" height="40" alt="Инерция"> `skill_341` | `momentum` | Инерция | Необычный | +2% урона за метр пробега (макс +30%). | 1 | 3 |  |  | `passive` → себе: урон растёт от движения | бонус: melee +0.6, mobile +0.5; штраф: charge -0.4 | positioning |
+| <img src="../icons/skill_442.webp" width="40" height="40" alt="Форсаж"> `skill_442` | `charge_speed` | Форсаж | Необычный | +30% скорость зарядки/замаха. | 2 | 3 |  | aspdPct +15% |  | нужен один из: charge, heavy; бонус: charge +0.8, heavy +0.6 | stat |
+| <img src="../icons/skill_416.webp" width="40" height="40" alt="Фланг"> `skill_416` | `backstab` | Фланг | Необычный | +25% урона по целям, которые атакуют не тебя. | 1 | 3 |  |  | `passive` → себе: фланговый бонус | бонус: melee +0.5, silent +0.5 | positioning |
+| <img src="../icons/skill_519.webp" width="40" height="40" alt="Нейроускоритель"> `skill_519` | `xp_up` | Нейроускоритель | Необычный | +15% опыта. | 2 | 2 |  | xpPct +15% |  |  | utility |
+| <img src="../icons/skill_510.webp" width="40" height="40" alt="Рикошет"> `skill_510` | `ricochet` | Рикошет | Редкий | Снаряды отскакивают к ближайшей цели (−30% урона). | 2 | 5 |  |  | `on_hit` → `ricochet` (count 1, dmg 70%) + наследует базовые нагрузки | нужно: projectile; бонус: ricochet +1, multi +0.6, spread +0.5 | delivery |
+| <img src="../icons/skill_350.webp" width="40" height="40" alt="Пробитие"> `skill_350` | `pierce` | Пробитие | Редкий | Снаряды пробивают +1 цель. | 2 | 5 |  |  | `on_hit` → `pierce` (count 1, dmg 100%) + наследует базовые нагрузки | нужно: projectile; бонус: pierce +0.8, long +0.5 | delivery |
+| <img src="../icons/skill_303.webp" width="40" height="40" alt="Мультивыстрел"> `skill_303` | `multishot` | Мультивыстрел | Редкий | +1 снаряд, −20% урона каждого. | 2 | 5 |  | projectilesAdd +1, dmgPct -20% |  | нужно: projectile; бонус: thrown +0.6, fast +0.4; штраф: spread -0.2 | stat |
+| <img src="../icons/skill_044.webp" width="40" height="40" alt="Разрывные"> `skill_044` | `explosive` | Разрывные | Редкий | Попадания взрываются (2 м, 30% урона), взрыв несёт твои статусы. | 1 | 5 |  |  | `on_hit` → `burst` (radius 2, dmg 30%) + наследует базовые нагрузки | нужно: projectile; бонус: charge +0.7, precision +0.5; штраф: multi -0.2 | delivery |
+| <img src="../icons/skill_229.webp" width="40" height="40" alt="Цепная молния"> `skill_229` | `chain_lightning` | Цепная молния | Редкий | Все молнии перескакивают ещё на 3 цели. | 1 | 5 |  |  | апгрейд доставки `chain`: targets +3 | бонус: fast +0.4, sustained +0.4 | upgrade |
+| <img src="../icons/skill_163.webp" width="40" height="40" alt="Дробление"> `skill_163` | `shatter` | Дробление | Редкий | Крит по обмороженной цели — ледяной взрыв 4 м на 150%. | 1 | 5 |  |  | `on_crit` по цели с `chill` → `burst` (radius 4, dmg 150%) + `chill` | бонус: precision +0.5, heavy +0.6 | delivery, crit |
+| <img src="../icons/skill_197.webp" width="40" height="40" alt="Пожар"> `skill_197` | `ignite_spread` | Пожар | Редкий | Горящие враги при смерти взрываются огнём (3 м). | 1 | 5 |  |  | `on_kill` по цели с `burn` → `burst` (radius 3, dmg 50%) + `burn` | бонус: multi +0.4, aoe +0.4 | delivery |
+| <img src="../icons/skill_427.webp" width="40" height="40" alt="Гравитация"> `skill_427` | `gravity_shots` | Гравитация | Редкий | Попадания создают воронку 3 м. | 1 | 5 |  |  | `on_hit` (каждое 3-е) → `pull` (radius 3, dmg 20%) + наследует базовые нагрузки | бонус: charge +0.6, heavy +0.7, aoe +0.6; штраф: fast -0.3 | delivery |
+| <img src="../icons/skill_396.webp" width="40" height="40" alt="Кровотечение"> `skill_396` | `bleed` | Кровотечение | Редкий | Удары ближнего боя вызывают кровотечение. | 1 | 5 |  |  | `on_hit` → `bleed` | нужно: melee; бонус: fast +0.6, combo +0.6 | onhit |
+| <img src="../icons/skill_467.webp" width="40" height="40" alt="Вихрь"> `skill_467` | `whirlwind` | Вихрь | Редкий | Каждый 3-й удар — круговая волна 3 м со всеми статусами. | 1 | 5 |  |  | `on_hit` (каждое 3-е) → `wave` (radius 3, dmg 100%) + наследует базовые нагрузки | нужно: melee; бонус: combo +0.7, heavy +0.5 | delivery |
+| <img src="../icons/skill_469.webp" width="40" height="40" alt="Ударная волна"> `skill_469` | `shield_wave` | Ударная волна | Редкий | Удар щитом выпускает волну 6 м с отбрасыванием. | 1 | 5 |  |  | `on_hit` → `wave` (radius 6, dmg 60%) + `knockback` + наследует базовые нагрузки | нужно: block; бонус: block +1 | delivery |
+| <img src="../icons/skill_296.webp" width="40" height="40" alt="Отражение"> `skill_296` | `reflect` | Отражение | Редкий | Блок отражает снаряд в стрелка, снаряд несёт твои статусы. | 1 | 5 |  |  | `on_block` → `reflect` (dmg 100%) + наследует базовые нагрузки | нужно: block; бонус: block +1 | delivery, pvp |
+| <img src="../icons/skill_407.webp" width="40" height="40" alt="Последний патрон"> `skill_407` | `last_round` | Последний патрон | Редкий | Последний патрон в магазине ×3 урона. | 1 | 5 |  |  | `on_reload` → себе: последний патрон ×3 | нужно: magazine; бонус: burst +0.8 | burst |
+| <img src="../icons/skill_479.webp" width="40" height="40" alt="Огибание"> `skill_479` | `homing_plus` | Огибание | Редкий | Снаряд один раз огибает преграду. | 1 | 6 |  |  | `passive` → себе: огибание преграды | нужно: projectile; бонус: thrown +0.6, long +0.5 | utility |
+| <img src="../icons/skill_284.webp" width="40" height="40" alt="Казнь"> `skill_284` | `execute` | Казнь | Редкий | Цели ниже 15% HP умирают от любого попадания. | 1 | 5 |  |  | `on_hit` → `execute` | бонус: fast +0.5, multi +0.5 | onhit |
+| <img src="../icons/skill_233.webp" width="40" height="40" alt="Кровавый крит"> `skill_233` | `vampiric_crit` | Кровавый крит | Редкий | Криты лечат на 8% урона. | 1 | 5 |  |  | `on_crit` → `heal` 8% | бонус: precision +0.5, charge +0.4 | crit, sustain |
+| <img src="../icons/skill_073.webp" width="40" height="40" alt="Кинетическая батарея"> `skill_073` | `kinetic_battery` | Кинетическая батарея | Редкий | 30% полученного/заблокированного урона добавляется к следующей атаке (с отбрасыванием). | 1 | 5 |  |  | `on_block` → `knockback` + себе: копит урон в следующий удар | бонус: block +0.8, heavy +0.6 | defense |
+| <img src="../icons/skill_333.webp" width="40" height="40" alt="Фрагментация"> `skill_333` | `split_on_kill` | Фрагментация | Эпический | Убийство выпускает 3 осколка (40%) со статусами. | 1 | 7 |  |  | `on_kill` → `split` (count 3, dmg 40%) + наследует базовые нагрузки | нужно: projectile; бонус: multi +0.5, ricochet +0.5 | delivery |
+| <img src="../icons/skill_230.webp" width="40" height="40" alt="Грозовое ядро"> `skill_230` | `storm_core` | Грозовое ядро | Эпический | Каждые 5 с — разряд-волна 8 м. | 1 | 7 |  |  | `periodic` (раз в 5 с) → `wave` (radius 8, dmg 80%) + `shock` | бонус: melee +0.5, close +0.5 | delivery |
+| <img src="../icons/skill_162.webp" width="40" height="40" alt="Коллапс"> `skill_162` | `black_hole_kill` | Коллапс | Эпический | Каждое 5-е убийство — мини-чёрная дыра 4 м на 2 с. | 1 | 7 |  |  | `on_kill` (каждое 5-е) → `pull` (radius 4, duration 2, dmg 200%) + наследует базовые нагрузки | бонус: aoe +0.5, multi +0.4 | delivery |
+| <img src="../icons/skill_299.webp" width="40" height="40" alt="Феникс"> `skill_299` | `phoenix` | Феникс | Эпический | Смерть → огненный взрыв 6 м и возрождение 30% HP. | 1 | 7 |  |  | `on_death` → `burst` (radius 6, dmg 500%) + `burn`<br>`on_death` → `heal` 30% |  | revive |
+| <img src="../icons/skill_093.webp" width="40" height="40" alt="Бесконечный магазин"> `skill_093` | `infinite_crit` | Бесконечный магазин | Эпический | Криты не тратят патроны и не сбивают комбо. | 1 | 7 |  |  | `passive` → себе: криты бесплатны | нужен один из: magazine, combo; бонус: sustained +0.7, combo +0.6 | crit |
+| <img src="../icons/skill_357.webp" width="40" height="40" alt="Адреналин"> `skill_357` | `adrenaline` | Адреналин | Эпический | Убийство: +5% скорости атаки и бега 4 с (×6). | 1 | 7 |  |  | `on_kill` → себе: ускорение (стак ×6) | бонус: fast +0.5, melee +0.4 | mobility |
+| <img src="../icons/skill_390.webp" width="40" height="40" alt="Крепость"> `skill_390` | `fortress` | Крепость | Эпический | Стоишь 1 с — +40% защиты, +20% урона. | 1 | 7 |  |  | `passive` → себе: бонус за неподвижность | бонус: long +0.7, block +0.5; штраф: mobile -0.4, melee -0.3 | positioning |
+| <img src="../icons/skill_319.webp" width="40" height="40" alt="Охотник"> `skill_319` | `hunter_mark` | Охотник | Эпический | Элитники и игроки постоянно помечены и видны сквозь стены. | 1 | 7 |  |  | `passive` → `mark` | бонус: long +0.6, precision +0.5 | pvp |
+| <img src="../icons/skill_522.webp" width="40" height="40" alt="Оверклок"> `skill_522` | `overclock` | Оверклок | Эпический | Активные способности −30% кулдаун. | 1 | 7 |  | cdrPct +30% |  |  | cooldown |
+| <img src="../icons/skill_468.webp" width="40" height="40" alt="Двойной след"> `skill_468` | `twin_blade` | Двойной след | Эпический | Каждый удар повторяется фантомом на 50%. | 1 | 7 |  |  | `on_hit` → `echo` (dmg 50%) + наследует базовые нагрузки | нужно: melee; бонус: fast +0.6, combo +0.6 | delivery |
+| <img src="../icons/skill_239.webp" width="40" height="40" alt="Эхо"> `skill_239` | `echo` | Эхо | Легендарный | Каждая активная способность срабатывает дважды. | 1 | 9 |  |  | триггер `on_activate` ×2 |  | upgrade |
+| <img src="../icons/skill_431.webp" width="40" height="40" alt="Синтез"> `skill_431` | `omni_element` | Синтез | Легендарный | Все доставки несут все твои статусы (даже те, что не наследуют). | 1 | 9 |  |  | все доставки наследуют базовые нагрузки (`inheritAll`) | бонус: fast +0.5, multi +0.5 | upgrade |
+| <img src="../icons/skill_401.webp" width="40" height="40" alt="Вечный рикошет"> `skill_401` | `infinite_ricochet` | Вечный рикошет | Легендарный | Рикошет до 5 целей без потери урона. | 1 | 9 |  |  | `on_hit` → `ricochet` (count 5, dmg 100%) + наследует базовые нагрузки | нужно: projectile; бонус: ricochet +1.2, multi +0.6 | delivery |
+| <img src="../icons/skill_313.webp" width="40" height="40" alt="Отражённый"> `skill_313` | `mirror_image` | Отражённый | Легендарный | Клон повторяет атаки на 50% и перетягивает автонаводку. | 1 | 9 |  |  | `passive` → `summon` (duration 999, dmg 50%) + наследует базовые нагрузки |  | delivery, pvp |
+| <img src="../icons/skill_490.webp" width="40" height="40" alt="Королевская метка"> `skill_490` | `deathmark` | Королевская метка | Легендарный | Убийство помеченной цели сбрасывает все кулдауны. | 1 | 9 |  |  | `on_kill` по цели с `mark` → себе: сброс кулдаунов |  | cooldown |
+| <img src="../icons/skill_367.webp" width="40" height="40" alt="Титан"> `skill_367` | `titan` | Титан | Легендарный | +50% HP, иммунитет к отбрасыванию, АоЕ +40%. | 1 | 9 |  | hpPct +50%, aoeDmgPct +40% |  | бонус: heavy +0.8, aoe +0.6, block +0.4 | defense |
 
 ### Активы (14)
 
-| id | Название | Редкость | Описание | Стаки | Power | КД | Статы | Эффекты | Совместимость с оружием | Теги |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `dash` | Рывок | Необычный | Рывок 6 м, 0.3 с неуязвимости. | 1 | 4 | 8 с |  | `on_activate` → себе: уклонение | бонус: melee +0.6, mobile +0.4 | mobility |
-| `grenade` | Плазменная граната | Необычный | Взрыв 4 м, 120 урона, поджог. | 1 | 4 | 14 с |  | `on_activate` → `burst` (radius 4, dmg 400%) + `burn` |  | aoe |
-| `barrier` | Барьер | Необычный | Купол 3 м на 4 с, чужие снаряды разрушаются. | 1 | 4 | 22 с |  | `on_activate` → `zone` (radius 3, duration 4) + `shield` | бонус: long +0.5 | defense |
-| `overdrive` | Овердрайв | Необычный | +50% скорости атаки 5 с. | 1 | 4 | 20 с |  | `on_activate` → себе: +50% скорости атаки 5 с | бонус: fast +0.4 | buff |
-| `shockwave` | Сейсмический удар | Необычный | Отбрасывание всех в 5 м, 80 урона. | 1 | 4 | 12 с |  | `on_activate` → `wave` (radius 5, dmg 250%) + `knockback` | бонус: heavy +0.6 | aoe |
-| `nano_pulse` | Нано-импульс | Необычный | Лечение 30% HP. | 1 | 4 | 25 с |  | `on_activate` → `heal` 30% |  | heal |
-| `blink` | Блинк | Редкий | Телепорт 8 м сквозь преграды. | 1 | 5 | 12 с |  | `on_activate` → себе: телепорт | бонус: melee +0.5, silent +0.4 | mobility |
-| `cryo_burst` | Криовзрыв | Редкий | Заморозка всех в 5 м на 2 с. | 1 | 5 | 18 с |  | `on_activate` → `wave` (radius 5) + `chill` ×5 | бонус: melee +0.6, heavy +0.5 | cc |
-| `volt_trap` | Вольт-ловушка | Редкий | Ловушка: оглушение и 150 урона. | 1 | 5 | 16 с |  | `on_activate` → `trap` (radius 2, dmg 500%) + `shock` | бонус: long +0.4 | trap |
-| `decoy` | Приманка | Редкий | Голограмма 6 с: автонаводка переключается на неё. | 1 | 5 | 20 с |  | `on_activate` → `summon` (duration 6, dmg 0%) | бонус: silent +0.4 | pvp |
-| `grapple` | Гарпун | Редкий | Притягивает врага к тебе (или тебя к нему). | 1 | 5 | 12 с |  | `on_activate` → `pull` (targets 1, radius 12) | бонус: melee +0.8 | mobility |
-| `smoke` | Дымовая завеса | Редкий | Облако 6 м на 5 с: автонаводка внутри не работает. | 1 | 5 | 18 с |  | `on_activate` → `zone` (radius 6, duration 5, dmg 0%) | бонус: melee +0.6 | pvp |
-| `turret` | Турель | Эпический | Турель 10 с, стреляет твоими статусами. | 1 | 6 | 30 с |  | `on_activate` → `summon` (duration 10, dmg 80%) + наследует базовые нагрузки |  | summon |
-| `salvo` | Залп | Эпический | 3 с каждая атака ×3 снаряда. | 1 | 6 | 24 с |  | `on_activate` → себе: ×3 снаряда 3 с | нужно: projectile; бонус: multi +0.5 | burst |
+| Иконка | id | Название | Редкость | Описание | Стаки | Power | КД | Статы | Эффекты | Совместимость с оружием | Теги |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| <img src="../icons/skill_440.webp" width="40" height="40" alt="Рывок"> `skill_440` | `dash` | Рывок | Необычный | Рывок 6 м, 0.3 с неуязвимости. | 1 | 4 | 8 с |  | `on_activate` → себе: уклонение | бонус: melee +0.6, mobile +0.4 | mobility |
+| <img src="../icons/skill_271.webp" width="40" height="40" alt="Плазменная граната"> `skill_271` | `grenade` | Плазменная граната | Необычный | Взрыв 4 м, 120 урона, поджог. | 1 | 4 | 14 с |  | `on_activate` → `burst` (radius 4, dmg 400%) + `burn` |  | aoe |
+| <img src="../icons/skill_132.webp" width="40" height="40" alt="Барьер"> `skill_132` | `barrier` | Барьер | Необычный | Купол 3 м на 4 с, чужие снаряды разрушаются. | 1 | 4 | 22 с |  | `on_activate` → `zone` (radius 3, duration 4) + `shield` | бонус: long +0.5 | defense |
+| <img src="../icons/skill_463.webp" width="40" height="40" alt="Овердрайв"> `skill_463` | `overdrive` | Овердрайв | Необычный | +50% скорости атаки 5 с. | 1 | 4 | 20 с |  | `on_activate` → себе: +50% скорости атаки 5 с | бонус: fast +0.4 | buff |
+| <img src="../icons/skill_265.webp" width="40" height="40" alt="Сейсмический удар"> `skill_265` | `shockwave` | Сейсмический удар | Необычный | Отбрасывание всех в 5 м, 80 урона. | 1 | 4 | 12 с |  | `on_activate` → `wave` (radius 5, dmg 250%) + `knockback` | бонус: heavy +0.6 | aoe |
+| <img src="../icons/skill_356.webp" width="40" height="40" alt="Нано-импульс"> `skill_356` | `nano_pulse` | Нано-импульс | Необычный | Лечение 30% HP. | 1 | 4 | 25 с |  | `on_activate` → `heal` 30% |  | heal |
+| <img src="../icons/skill_505.webp" width="40" height="40" alt="Блинк"> `skill_505` | `blink` | Блинк | Редкий | Телепорт 8 м сквозь преграды. | 1 | 5 | 12 с |  | `on_activate` → себе: телепорт | бонус: melee +0.5, silent +0.4 | mobility |
+| <img src="../icons/skill_274.webp" width="40" height="40" alt="Криовзрыв"> `skill_274` | `cryo_burst` | Криовзрыв | Редкий | Заморозка всех в 5 м на 2 с. | 1 | 5 | 18 с |  | `on_activate` → `wave` (radius 5) + `chill` ×5 | бонус: melee +0.6, heavy +0.5 | cc |
+| <img src="../icons/skill_126.webp" width="40" height="40" alt="Вольт-ловушка"> `skill_126` | `volt_trap` | Вольт-ловушка | Редкий | Ловушка: оглушение и 150 урона. | 1 | 5 | 16 с |  | `on_activate` → `trap` (radius 2, dmg 500%) + `shock` | бонус: long +0.4 | trap |
+| <img src="../icons/skill_312.webp" width="40" height="40" alt="Приманка"> `skill_312` | `decoy` | Приманка | Редкий | Голограмма 6 с: автонаводка переключается на неё. | 1 | 5 | 20 с |  | `on_activate` → `summon` (duration 6, dmg 0%) | бонус: silent +0.4 | pvp |
+| <img src="../icons/skill_290.webp" width="40" height="40" alt="Гарпун"> `skill_290` | `grapple` | Гарпун | Редкий | Притягивает врага к тебе (или тебя к нему). | 1 | 5 | 12 с |  | `on_activate` → `pull` (targets 1, radius 12) | бонус: melee +0.8 | mobility |
+| <img src="../icons/skill_047.webp" width="40" height="40" alt="Дымовая завеса"> `skill_047` | `smoke` | Дымовая завеса | Редкий | Облако 6 м на 5 с: автонаводка внутри не работает. | 1 | 5 | 18 с |  | `on_activate` → `zone` (radius 6, duration 5, dmg 0%) | бонус: melee +0.6 | pvp |
+| <img src="../icons/skill_369.webp" width="40" height="40" alt="Турель"> `skill_369` | `turret` | Турель | Эпический | Турель 10 с, стреляет твоими статусами. | 1 | 6 | 30 с |  | `on_activate` → `summon` (duration 10, dmg 80%) + наследует базовые нагрузки |  | summon |
+| <img src="../icons/skill_397.webp" width="40" height="40" alt="Залп"> `skill_397` | `salvo` | Залп | Эпический | 3 с каждая атака ×3 снаряда. | 1 | 6 | 24 с |  | `on_activate` → себе: ×3 снаряда 3 с | нужно: projectile; бонус: multi +0.5 | burst |
 
 ### Ультимейты (7)
 
-| id | Название | Редкость | Описание | Стаки | Power | Заряд | Статы | Эффекты | Совместимость с оружием | Теги |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `orbital` | Орбитальный удар | Легендарный | Удар 10 м: 1500 урона, поджог. | 1 | 10 | Нанести 3000 урона, не получив урона. |  | `on_ult` → `burst` (radius 10, dmg 4000%) + `burn` | бонус: long +0.5 | aoe |
-| `time_stop` | Стазис-поле | Легендарный | Все в 15 м заморожены на 4 с. | 1 | 10 | 10 уклонений/блоков подряд. |  | `on_ult` → `wave` (radius 15) + `chill` ×5 | бонус: block +0.6 | cc |
-| `thunder_god` | Громовержец | Легендарный | 8 с каждое попадание — цепная молния на 5 целей. | 1 | 10 | 50 попаданий молниями. |  | `on_hit` [окно ульты 8 с] → `chain` (targets 5, dmg 100%) + `shock` + наследует базовые нагрузки | бонус: fast +0.6 | chain |
-| `singularity` | Сингулярность | Легендарный | Чёрная дыра 8 м 4 с, затем взрыв 1000. | 1 | 10 | 5 убийств помеченных целей. |  | `on_ult` → `pull` (radius 8, duration 4, dmg 2500%) + наследует базовые нагрузки |  | aoe |
-| `juggernaut` | Джаггернаут | Легендарный | 8 с неуязвимость, каждый шаг — волна отбрасывания. | 1 | 10 | Поглотить 500 урона щитом/бронёй. |  | `on_ult` → `wave` (radius 3, duration 8, dmg 100%, повтор 0.5 с) + `knockback` | бонус: block +0.8, heavy +0.6 | defense |
-| `overheal_nova` | Нова | Легендарный | Полное лечение, оверхил — взрыв 8 м. | 1 | 10 | Восстановить 400 HP. |  | `on_ult` → `heal` 100%<br>`on_ult` → `burst` (radius 8, dmg 1000%) |  | heal |
-| `ghost_protocol` | Протокол-призрак | Легендарный | 6 с невидимости, крит 100%. | 1 | 10 | Убить элитника, не получив урона. |  | `on_ult` → себе: невидимость + крит 100% | бонус: silent +0.8 | pvp |
+| Иконка | id | Название | Редкость | Описание | Стаки | Power | Заряд | Статы | Эффекты | Совместимость с оружием | Теги |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| <img src="../icons/skill_214.webp" width="40" height="40" alt="Орбитальный удар"> `skill_214` | `orbital` | Орбитальный удар | Легендарный | Удар 10 м: 1500 урона, поджог. | 1 | 10 | Нанести 3000 урона, не получив урона. |  | `on_ult` → `burst` (radius 10, dmg 4000%) + `burn` | бонус: long +0.5 | aoe |
+| <img src="../icons/skill_111.webp" width="40" height="40" alt="Стазис-поле"> `skill_111` | `time_stop` | Стазис-поле | Легендарный | Все в 15 м заморожены на 4 с. | 1 | 10 | 10 уклонений/блоков подряд. |  | `on_ult` → `wave` (radius 15) + `chill` ×5 | бонус: block +0.6 | cc |
+| <img src="../icons/skill_501.webp" width="40" height="40" alt="Громовержец"> `skill_501` | `thunder_god` | Громовержец | Легендарный | 8 с каждое попадание — цепная молния на 5 целей. | 1 | 10 | 50 попаданий молниями. |  | `on_hit` [окно ульты 8 с] → `chain` (targets 5, dmg 100%) + `shock` + наследует базовые нагрузки | бонус: fast +0.6 | chain |
+| <img src="../icons/skill_164.webp" width="40" height="40" alt="Сингулярность"> `skill_164` | `singularity` | Сингулярность | Легендарный | Чёрная дыра 8 м 4 с, затем взрыв 1000. | 1 | 10 | 5 убийств помеченных целей. |  | `on_ult` → `pull` (radius 8, duration 4, dmg 2500%) + наследует базовые нагрузки |  | aoe |
+| <img src="../icons/skill_464.webp" width="40" height="40" alt="Джаггернаут"> `skill_464` | `juggernaut` | Джаггернаут | Легендарный | 8 с неуязвимость, каждый шаг — волна отбрасывания. | 1 | 10 | Поглотить 500 урона щитом/бронёй. |  | `on_ult` → `wave` (radius 3, duration 8, dmg 100%, повтор 0.5 с) + `knockback` | бонус: block +0.8, heavy +0.6 | defense |
+| <img src="../icons/skill_224.webp" width="40" height="40" alt="Нова"> `skill_224` | `overheal_nova` | Нова | Легендарный | Полное лечение, оверхил — взрыв 8 м. | 1 | 10 | Восстановить 400 HP. |  | `on_ult` → `heal` 100%<br>`on_ult` → `burst` (radius 8, dmg 1000%) |  | heal |
+| <img src="../icons/skill_435.webp" width="40" height="40" alt="Протокол-призрак"> `skill_435` | `ghost_protocol` | Протокол-призрак | Легендарный | 6 с невидимости, крит 100%. | 1 | 10 | Убить элитника, не получив урона. |  | `on_ult` → себе: невидимость + крит 100% | бонус: silent +0.8 | pvp |
 
 ## Модули оружия
 

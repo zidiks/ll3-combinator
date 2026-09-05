@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated": "2026-09-03",
+  "updated": "2026-09-05",
   "elements": {
     "plasma": {
       "name": "Плазма",
@@ -20895,12 +20895,20 @@
       ]
     }
   ],
+  "iconSet": {
+    "pack": "500 Free Skill Icons",
+    "note": "Иконки модификаторов. Поле icon у мода — имя файла без расширения.",
+    "web": "icons/{icon}.webp",
+    "unity": "Assets/500FreeSkillIcons/Icons/{icon}.png",
+    "size": 256
+  },
   "mods": [
     {
       "id": "dmg_up",
       "name": "Калибровка",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_383",
       "maxStacks": 5,
       "stats": {
         "dmgPct": 0.08
@@ -20913,6 +20921,7 @@
       "name": "Разгон",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_276",
       "maxStacks": 5,
       "stats": {
         "aspdPct": 0.08
@@ -20929,6 +20938,7 @@
       "name": "Уязвимость",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_461",
       "maxStacks": 5,
       "stats": {
         "critPct": 0.05
@@ -20946,6 +20956,7 @@
       "name": "Усиленный каркас",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_309",
       "maxStacks": 5,
       "stats": {
         "hpPct": 0.12
@@ -20958,6 +20969,7 @@
       "name": "Сервоприводы",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_349",
       "maxStacks": 4,
       "stats": {
         "speedPct": 0.06
@@ -20975,6 +20987,7 @@
       "name": "Быстрый затвор",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_307",
       "maxStacks": 4,
       "stats": {
         "reloadPct": -0.12
@@ -20991,6 +21004,7 @@
       "name": "Удлинённый ствол",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_347",
       "maxStacks": 3,
       "stats": {
         "rangePct": 0.1
@@ -21010,6 +21024,7 @@
       "name": "Ускоритель",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_428",
       "maxStacks": 3,
       "stats": {
         "projSpeedPct": 0.15
@@ -21030,6 +21045,7 @@
       "name": "Длинный замах",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_413",
       "maxStacks": 3,
       "stats": {
         "rangePct": 0.2
@@ -21049,6 +21065,7 @@
       "name": "Композит",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_458",
       "maxStacks": 4,
       "stats": {
         "drPct": 0.05
@@ -21065,6 +21082,7 @@
       "name": "Нано-фильтр",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_337",
       "maxStacks": 3,
       "stats": {},
       "effects": [
@@ -21086,6 +21104,7 @@
       "name": "Магнит",
       "type": "passive",
       "rarity": "common",
+      "icon": "skill_388",
       "maxStacks": 2,
       "stats": {
         "xpPct": 0.1
@@ -21098,6 +21117,7 @@
       "name": "Термоядро",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_316",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21122,6 +21142,7 @@
       "name": "Криокапсула",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_434",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21145,6 +21166,7 @@
       "name": "Статика",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_027",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21170,6 +21192,7 @@
       "name": "Ударная масса",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_441",
       "maxStacks": 2,
       "stats": {},
       "effects": [
@@ -21191,6 +21214,7 @@
       "name": "Метка пустоты",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_318",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21214,6 +21238,7 @@
       "name": "Регенерация",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_235",
       "maxStacks": 2,
       "stats": {},
       "effects": [
@@ -21234,6 +21259,7 @@
       "name": "Бронебойность",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_205",
       "maxStacks": 3,
       "stats": {
         "critMultAdd": 0.3
@@ -21251,6 +21277,7 @@
       "name": "Аварийный щит",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_026",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21272,6 +21299,7 @@
       "name": "Ловкие руки",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_488",
       "maxStacks": 1,
       "stats": {
         "reloadPct": -0.25
@@ -21296,6 +21324,7 @@
       "name": "Стеклянная пушка",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_172",
       "maxStacks": 2,
       "stats": {
         "dmgPct": 0.25,
@@ -21316,6 +21345,7 @@
       "name": "Инерция",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_341",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21339,6 +21369,7 @@
       "name": "Форсаж",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_442",
       "maxStacks": 2,
       "stats": {
         "aspdPct": 0.15
@@ -21361,6 +21392,7 @@
       "name": "Фланг",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_416",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21381,6 +21413,7 @@
       "name": "Нейроускоритель",
       "type": "passive",
       "rarity": "uncommon",
+      "icon": "skill_519",
       "maxStacks": 2,
       "stats": {
         "xpPct": 0.15
@@ -21393,6 +21426,7 @@
       "name": "Рикошет",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_510",
       "maxStacks": 2,
       "stats": {},
       "effects": [
@@ -21420,6 +21454,7 @@
       "name": "Пробитие",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_350",
       "maxStacks": 2,
       "stats": {},
       "effects": [
@@ -21446,6 +21481,7 @@
       "name": "Мультивыстрел",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_303",
       "maxStacks": 2,
       "stats": {
         "projectilesAdd": 1,
@@ -21470,6 +21506,7 @@
       "name": "Разрывные",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_044",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21499,6 +21536,7 @@
       "name": "Цепная молния",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_229",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21521,6 +21559,7 @@
       "name": "Дробление",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_163",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21545,6 +21584,7 @@
       "name": "Пожар",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_197",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21569,6 +21609,7 @@
       "name": "Гравитация",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_427",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21597,6 +21638,7 @@
       "name": "Кровотечение",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_396",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21620,6 +21662,7 @@
       "name": "Вихрь",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_467",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21647,6 +21690,7 @@
       "name": "Ударная волна",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_469",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21673,6 +21717,7 @@
       "name": "Отражение",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_296",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21697,6 +21742,7 @@
       "name": "Последний патрон",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_407",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21719,6 +21765,7 @@
       "name": "Огибание",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_479",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21742,6 +21789,7 @@
       "name": "Казнь",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_284",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21762,6 +21810,7 @@
       "name": "Кровавый крит",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_233",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21783,6 +21832,7 @@
       "name": "Кинетическая батарея",
       "type": "passive",
       "rarity": "rare",
+      "icon": "skill_073",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21804,6 +21854,7 @@
       "name": "Фрагментация",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_333",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21830,6 +21881,7 @@
       "name": "Грозовое ядро",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_230",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21854,6 +21906,7 @@
       "name": "Коллапс",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_162",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21879,6 +21932,7 @@
       "name": "Феникс",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_299",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21902,6 +21956,7 @@
       "name": "Бесконечный магазин",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_093",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21927,6 +21982,7 @@
       "name": "Адреналин",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_357",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21947,6 +22003,7 @@
       "name": "Крепость",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_390",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21971,6 +22028,7 @@
       "name": "Охотник",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_319",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -21991,6 +22049,7 @@
       "name": "Оверклок",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_522",
       "maxStacks": 1,
       "stats": {
         "cdrPct": 0.3
@@ -22003,6 +22062,7 @@
       "name": "Двойной след",
       "type": "passive",
       "rarity": "epic",
+      "icon": "skill_468",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -22028,6 +22088,7 @@
       "name": "Эхо",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_239",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -22045,6 +22106,7 @@
       "name": "Синтез",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_431",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -22066,6 +22128,7 @@
       "name": "Вечный рикошет",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_401",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -22092,6 +22155,7 @@
       "name": "Отражённый",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_313",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -22110,6 +22174,7 @@
       "name": "Королевская метка",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_490",
       "maxStacks": 1,
       "stats": {},
       "effects": [
@@ -22126,6 +22191,7 @@
       "name": "Титан",
       "type": "passive",
       "rarity": "legendary",
+      "icon": "skill_367",
       "maxStacks": 1,
       "stats": {
         "hpPct": 0.5,
@@ -22145,6 +22211,7 @@
       "name": "Рывок",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_440",
       "cooldown": 8,
       "maxStacks": 1,
       "stats": {},
@@ -22166,6 +22233,7 @@
       "name": "Блинк",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_505",
       "cooldown": 12,
       "maxStacks": 1,
       "stats": {},
@@ -22187,6 +22255,7 @@
       "name": "Плазменная граната",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_271",
       "cooldown": 14,
       "maxStacks": 1,
       "stats": {},
@@ -22206,6 +22275,7 @@
       "name": "Криовзрыв",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_274",
       "cooldown": 18,
       "maxStacks": 1,
       "stats": {},
@@ -22230,6 +22300,7 @@
       "name": "Вольт-ловушка",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_126",
       "cooldown": 16,
       "maxStacks": 1,
       "stats": {},
@@ -22253,6 +22324,7 @@
       "name": "Приманка",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_312",
       "cooldown": 20,
       "maxStacks": 1,
       "stats": {},
@@ -22275,6 +22347,7 @@
       "name": "Барьер",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_132",
       "cooldown": 22,
       "maxStacks": 1,
       "stats": {},
@@ -22298,6 +22371,7 @@
       "name": "Овердрайв",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_463",
       "cooldown": 20,
       "maxStacks": 1,
       "stats": {},
@@ -22318,6 +22392,7 @@
       "name": "Гарпун",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_290",
       "cooldown": 12,
       "maxStacks": 1,
       "stats": {},
@@ -22340,6 +22415,7 @@
       "name": "Турель",
       "type": "active",
       "rarity": "epic",
+      "icon": "skill_369",
       "cooldown": 30,
       "maxStacks": 1,
       "stats": {},
@@ -22359,6 +22435,7 @@
       "name": "Дымовая завеса",
       "type": "active",
       "rarity": "rare",
+      "icon": "skill_047",
       "cooldown": 18,
       "maxStacks": 1,
       "stats": {},
@@ -22382,6 +22459,7 @@
       "name": "Сейсмический удар",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_265",
       "cooldown": 12,
       "maxStacks": 1,
       "stats": {},
@@ -22405,6 +22483,7 @@
       "name": "Нано-импульс",
       "type": "active",
       "rarity": "uncommon",
+      "icon": "skill_356",
       "cooldown": 25,
       "maxStacks": 1,
       "stats": {},
@@ -22422,6 +22501,7 @@
       "name": "Залп",
       "type": "active",
       "rarity": "epic",
+      "icon": "skill_397",
       "cooldown": 24,
       "maxStacks": 1,
       "stats": {},
@@ -22445,6 +22525,7 @@
       "name": "Орбитальный удар",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_214",
       "charge": "Нанести 3000 урона, не получив урона.",
       "maxStacks": 1,
       "stats": {},
@@ -22468,6 +22549,7 @@
       "name": "Стазис-поле",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_111",
       "charge": "10 уклонений/блоков подряд.",
       "maxStacks": 1,
       "stats": {},
@@ -22491,6 +22573,7 @@
       "name": "Громовержец",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_501",
       "charge": "50 попаданий молниями.",
       "maxStacks": 1,
       "stats": {},
@@ -22516,6 +22599,7 @@
       "name": "Сингулярность",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_164",
       "charge": "5 убийств помеченных целей.",
       "maxStacks": 1,
       "stats": {},
@@ -22536,6 +22620,7 @@
       "name": "Джаггернаут",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_464",
       "charge": "Поглотить 500 урона щитом/бронёй.",
       "maxStacks": 1,
       "stats": {},
@@ -22562,6 +22647,7 @@
       "name": "Нова",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_224",
       "charge": "Восстановить 400 HP.",
       "maxStacks": 1,
       "stats": {},
@@ -22585,6 +22671,7 @@
       "name": "Протокол-призрак",
       "type": "ultimate",
       "rarity": "legendary",
+      "icon": "skill_435",
       "charge": "Убить элитника, не получив урона.",
       "maxStacks": 1,
       "stats": {},

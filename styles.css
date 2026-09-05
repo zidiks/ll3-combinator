@@ -102,6 +102,12 @@ table.comp td:hover { background: var(--bg3); }
 @media (max-width: 1300px) { .three { grid-template-columns: 300px minmax(0, 1fr); } .three .col:last-child { grid-column: 1 / -1; } }
 @media (max-width: 800px) { .three { grid-template-columns: 1fr; } }
 .col.lib { position: sticky; top: 58px; display: flex; flex-direction: column; max-height: calc(100vh - 70px); background: var(--bg2); border: 1px solid var(--line); border-radius: var(--radius); }
+/* иконки модов (пак 500 Free Skill Icons; путь — data.json → iconSet.web) */
+.ico { width: 34px; height: 34px; flex: none; border-radius: 8px; border: 1.5px solid var(--line); background: #0f1216; object-fit: cover; display: block; }
+.ico.sm { width: 26px; height: 26px; border-radius: 6px; }
+.ico.lg { width: 48px; height: 48px; border-radius: 10px; }
+.ico.ph { background: repeating-linear-gradient(45deg, #14171c, #14171c 4px, #1a1e24 4px, #1a1e24 8px); }
+table td .ico { margin: -2px 0; }
 .lib-top { display: flex; gap: 6px; padding: 8px; border-bottom: 1px solid var(--line); }
 .lib-top input { flex: 1; min-width: 0; }
 .lib-list { overflow: auto; flex: 1; }
@@ -110,7 +116,6 @@ table.comp td:hover { background: var(--bg3); }
 .lib-i:hover { background: var(--bg3); }
 .lib-i.on { background: rgba(95,216,255,0.08); }
 .lib-i.dis { opacity: 0.35; cursor: not-allowed; }
-.lib-i .rd { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex: none; }
 .lib-i .nm { font-weight: 600; font-size: 13px; }
 .lib-i .chk { color: var(--accent); }
 .lib-i .ef, .be .ef { margin-top: 2px; line-height: 1.7; }

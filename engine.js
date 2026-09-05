@@ -50,7 +50,8 @@
       rangeStats: ['rangePct', 'rangeOptPct', 'rangeMinAdd', 'falloffAdd', 'closeMultAdd'],
       slots: { passive: D.config.passiveSlots, active: D.config.activeSlots, ultimate: D.config.ultSlots, item: D.config.itemSlots || 1, ultMinLevel: D.config.ultMinLevel, maxLevel: D.config.maxLevel },
       items: (D.items || []).map((it) => ({ id: it.id, name: it.name, cat: it.cat, rarity: it.rarity, uses: it.uses || 1, effects: it.effects || [] })),
-      mods: D.mods.map((m) => ({ id: m.id, name: m.name, type: m.type, rarity: m.rarity, cooldown: m.cooldown, charge: m.charge, maxStacks: m.maxStacks, stats: m.stats || {}, effects: m.effects || [], weapon: m.weapon || {} })),
+      iconSet: D.iconSet || null,
+      mods: D.mods.map((m) => ({ id: m.id, name: m.name, type: m.type, rarity: m.rarity, icon: m.icon, cooldown: m.cooldown, charge: m.charge, maxStacks: m.maxStacks, stats: m.stats || {}, effects: m.effects || [], weapon: m.weapon || {} })),
       moduleSlots: D.moduleSlots, modules: (D.modules || []).map((m) => ({ id: m.id, name: m.name, slot: m.slot, rarity: m.rarity, stats: m.stats || {}, effects: m.effects || [], weapon: m.weapon || {} })) };
   }
 

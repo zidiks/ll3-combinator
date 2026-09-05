@@ -14,6 +14,7 @@
 ## Derived
 
 - [unity.json](https://ll3-combinator.vercel.app/unity.json): engine export — dictionaries plus every composite (delivery × 0–2 statuses) with ready names and colors, weapon range profiles, slots.
+- [icons/](https://ll3-combinator.vercel.app/icons/): mod icons, WebP 256×256. Path template lives in `data.json` → `iconSet.web`; a mod's `icon` field is the file name without extension (e.g. `skill_383` → `/icons/skill_383.webp`). Source: the free "500 Free Skill Icons" pack.
 - [engine.js](https://ll3-combinator.vercel.app/engine.js): pure functions shared by UI and build script (composite naming, Unity export); works in Node and browser.
 - [CHANGELOG.md](https://ll3-combinator.vercel.app/CHANGELOG.md): what changed and when. `data.json.updated` holds the date of the last data change.
 

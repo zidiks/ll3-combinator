@@ -5,7 +5,7 @@
 //    node scripts/build.mjs --check  → только проверка (exit 1 при ошибках)
 //  Без зависимостей. Запускается Vercel при деплое (см. vercel.json).
 // ============================================================
-import { readFileSync, writeFileSync, rmSync, mkdirSync, cpSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync, mkdirSync, cpSync, existsSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -139,6 +139,22 @@ for (const m of D.mods) {
   if (!(m.maxStacks >= 1)) err(`mod ${m.id}: maxStacks >= 1 required`);
   checkEffects(m, 'mod'); checkWeaponRule(m, 'mod'); checkStats(m, 'mod');
 }
+// иконки модов: поле icon → файл icons/<icon>.webp (веб) и <pack>/<icon>.png (Unity)
+const ICON_DIR = join(ROOT, 'icons');
+const iconsUsed = new Map();
+for (const m of D.mods) {
+  if (!m.icon) { err(`mod ${m.id}: icon required (см. iconSet)`); continue; }
+  if (!/^skill_\d{3}$/.test(m.icon)) err(`mod ${m.id}: icon "${m.icon}" не похож на файл пака (skill_123)`);
+  const file = join(ICON_DIR, m.icon + '.webp');
+  if (!existsSync(file)) err(`mod ${m.id}: нет файла иконки icons/${m.icon}.webp (пересобрать: python scripts/icons.py)`);
+  if (iconsUsed.has(m.icon)) warn(`mod ${m.id}: иконка ${m.icon} уже занята модом ${iconsUsed.get(m.icon)}`);
+  else iconsUsed.set(m.icon, m.id);
+}
+for (const key of ['pack', 'web', 'unity']) if (!D.iconSet?.[key]) err(`iconSet.${key} required`);
+for (const f of readdirSync(ICON_DIR).filter((f) => f.endsWith('.webp'))) {
+  if (!iconsUsed.has(f.replace(/\.webp$/, ''))) warn(`icons/${f}: файл не используется ни одним модом`);
+}
+
 for (const m of D.modules) {
   if (!has(D.moduleSlots, m.slot)) err(`module ${m.id}: unknown slot ${m.slot}`);
   if (!D.rarities.includes(m.rarity)) err(`module ${m.id}: unknown rarity ${m.rarity}`);
@@ -158,7 +174,7 @@ for (const t of D.meta.weaponTiers) for (const cur of Object.keys(t.cost || {}))
 // ---------------- report ----------------
 for (const w of warnings) console.warn('  warn  ' + w);
 for (const e of errors) console.error('  ERROR ' + e);
-console.log(`data.json: ${D.weapons.length} weapons, ${D.mods.length} mods, ${D.modules.length} modules, ${D.items.length} items, ${Object.keys(D.payloads).length} payloads, ${Object.keys(D.deliveries).length} deliveries, ${D.reactions.length} reactions, ${Object.keys(D.vfxPrimitives).length} vfx primitives — ${errors.length} errors, ${warnings.length} warnings`);
+console.log(`data.json: ${D.weapons.length} weapons, ${D.mods.length} mods (${iconsUsed.size} icons), ${D.modules.length} modules, ${D.items.length} items, ${Object.keys(D.payloads).length} payloads, ${Object.keys(D.deliveries).length} deliveries, ${D.reactions.length} reactions, ${Object.keys(D.vfxPrimitives).length} vfx primitives — ${errors.length} errors, ${warnings.length} warnings`);
 if (errors.length) process.exit(1);
 if (CHECK_ONLY) process.exit(0);
 
@@ -170,6 +186,7 @@ console.log(`unity.json: ${unity.composites.length} composites`);
 // ---------------- docs/catalog.md ----------------
 const pct = (x) => Math.round(x * 100) + '%';
 const rar = (r) => D.rarityNames[r] || r;
+const icon = (m) => (m.icon ? `<img src="../${D.iconSet.web.replace('{icon}', m.icon)}" width="40" height="40" alt="${m.name}"> \`${m.icon}\`` : '');
 const cell = (s) => String(s ?? '').replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
 const table = (head, rows) => ['| ' + head.join(' | ') + ' |', '|' + head.map(() => '---').join('|') + '|', ...rows.map((r) => '| ' + r.map(cell).join(' | ') + ' |')].join('\n');
 
@@ -247,8 +264,8 @@ const typeName = { passive: 'Пассивки', active: 'Активы', ultimate
 md.push('## Модификаторы (mods)', '', `Всего ${D.mods.length}. Формат эффекта описан в [mechanics.md](mechanics.md#4-эффект--атом-системы).`, '');
 for (const type of ['passive', 'active', 'ultimate']) {
   const list = D.mods.filter((m) => m.type === type).sort((a, b) => D.rarities.indexOf(a.rarity) - D.rarities.indexOf(b.rarity));
-  md.push(`### ${typeName[type]} (${list.length})`, '', table(['id', 'Название', 'Редкость', 'Описание', 'Стаки', 'Power', type === 'ultimate' ? 'Заряд' : 'КД', 'Статы', 'Эффекты', 'Совместимость с оружием', 'Теги'],
-    list.map((m) => [`\`${m.id}\``, m.name, rar(m.rarity), m.desc, m.maxStacks, m.power, type === 'ultimate' ? m.charge || '' : m.cooldown ? `${m.cooldown} с` : '', fmtStats(m.stats), (m.effects || []).map(fmtEffect).join('<br>'), fmtRule(m.weapon), (m.tags || []).join(', ')])), '');
+  md.push(`### ${typeName[type]} (${list.length})`, '', table(['Иконка', 'id', 'Название', 'Редкость', 'Описание', 'Стаки', 'Power', type === 'ultimate' ? 'Заряд' : 'КД', 'Статы', 'Эффекты', 'Совместимость с оружием', 'Теги'],
+    list.map((m) => [icon(m), `\`${m.id}\``, m.name, rar(m.rarity), m.desc, m.maxStacks, m.power, type === 'ultimate' ? m.charge || '' : m.cooldown ? `${m.cooldown} с` : '', fmtStats(m.stats), (m.effects || []).map(fmtEffect).join('<br>'), fmtRule(m.weapon), (m.tags || []).join(', ')])), '');
 }
 md.push('## Модули оружия', '', `Слоты: ${Object.entries(D.moduleSlots).map(([k, v]) => `\`${k}\` = ${v}`).join(', ')}. Ставятся до катки, в конструкторе участвуют как моды (наследуются, реагируют, попадают в авто-имена).`, '');
 for (const [slot, slotName] of Object.entries(D.moduleSlots)) {
@@ -272,6 +289,6 @@ console.log('docs/catalog.md written');
 const PUB = join(ROOT, "public");
 if (existsSync(PUB)) rmSync(PUB, { recursive: true, force: true });
 mkdirSync(PUB);
-const DEPLOY = ["index.html", "app.js", "engine.js", "styles.css", "data.json", "unity.json", "llms.txt", "robots.txt", "sitemap.txt", "README.md", "CHANGELOG.md", "docs", "schema"];
+const DEPLOY = ["index.html", "app.js", "engine.js", "styles.css", "data.json", "unity.json", "llms.txt", "robots.txt", "sitemap.txt", "README.md", "CHANGELOG.md", "docs", "schema", "icons"];
 for (const f of DEPLOY) cpSync(join(ROOT, f), join(PUB, f), { recursive: true });
 console.log("public/ assembled: " + DEPLOY.join(", "));

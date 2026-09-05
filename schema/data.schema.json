@@ -4,7 +4,7 @@
   "title": "Arsenal Designer data (v2)",
   "description": "Канонические данные геймдизайна PvPvE-экстракшена с рогалик-драфтом: оружие, модификаторы, модули, предметы, композиционная система эффектов (нагрузки × доставки × носители), реакции статусов, правила драфта, мета-прогрессия. Семантика полей и формулы движка — в docs/mechanics.md.",
   "type": "object",
-  "required": ["version", "updated", "config", "rarities", "rarityColors", "rarityNames", "elements", "triggers", "payloads", "deliveries", "weaponKinds", "weaponVariants", "compositeOverrides", "reactions", "vfxPrimitives", "rangeClasses", "weaponTagNames", "weapons", "mods", "moduleSlots", "modules", "items", "meta"],
+  "required": ["version", "updated", "config", "rarities", "rarityColors", "rarityNames", "iconSet", "elements", "triggers", "payloads", "deliveries", "weaponKinds", "weaponVariants", "compositeOverrides", "reactions", "vfxPrimitives", "rangeClasses", "weaponTagNames", "weapons", "mods", "moduleSlots", "modules", "items", "meta"],
   "properties": {
     "$schema": { "type": "string" },
     "version": { "const": 2, "description": "Версия формата данных. UI принимает только 2." },
@@ -60,6 +60,18 @@
     "rarities": { "type": "array", "items": { "type": "string" }, "description": "Порядок редкостей от низшей к высшей. Индекс = ранг." },
     "rarityColors": { "type": "object", "additionalProperties": { "$ref": "#/$defs/color" } },
     "rarityNames": { "type": "object", "additionalProperties": { "type": "string" } },
+    "iconSet": {
+      "type": "object",
+      "description": "Откуда берутся иконки и как из поля icon собрать путь к файлу. {icon} — подстановка значения поля.",
+      "required": ["pack", "web", "unity"],
+      "properties": {
+        "pack": { "type": "string", "description": "Название пака-источника." },
+        "note": { "type": "string" },
+        "web": { "type": "string", "description": "Шаблон пути для сайта (WebP, относительно корня)." },
+        "unity": { "type": "string", "description": "Шаблон пути внутри Unity-проекта (исходный PNG)." },
+        "size": { "type": "integer", "description": "Сторона веб-иконки в пикселях." }
+      }
+    },
 
     "elements": {
       "type": "object",
@@ -213,12 +225,13 @@
       "description": "Модификаторы — то, что драфтится в катке.",
       "items": {
         "type": "object",
-        "required": ["id", "name", "type", "rarity", "maxStacks", "power", "desc", "effects"],
+        "required": ["id", "name", "type", "rarity", "icon", "maxStacks", "power", "desc", "effects"],
         "properties": {
           "id": { "$ref": "#/$defs/id" },
           "name": { "type": "string" },
           "type": { "enum": ["passive", "active", "ultimate"] },
           "rarity": { "type": "string" },
+          "icon": { "$ref": "#/$defs/icon" },
           "tags": { "type": "array", "items": { "type": "string" }, "description": "Свободные теги для фильтров UI (stat, crit, delivery, upgrade, aoe…)." },
           "maxStacks": { "type": "integer", "minimum": 1, "description": "Сколько раз можно взять. Статы умножаются на стаки." },
           "power": { "type": "number", "description": "Условная сила для бюджета билда (сумма по билду)." },
@@ -299,6 +312,7 @@
   "$defs": {
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Стабильный машинный id (snake_case). Считать каноническим во всех проектах." },
     "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+    "icon": { "type": "string", "pattern": "^skill_[0-9]{3}$", "description": "Имя файла иконки без расширения из пака 500 Free Skill Icons. Пути к файлам — в iconSet (web: icons/{icon}.webp, unity: Assets/500FreeSkillIcons/Icons/{icon}.png)." },
     "gender": { "enum": ["m", "f", "n", "pl"], "description": "Род существительного: мужской, женский, средний, множественное число. Индекс в payload.adj: m=0, f=1, n=2, pl=3." },
     "stats": {
       "type": "object",
